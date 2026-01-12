@@ -46,3 +46,13 @@ async def SendDM(user=User, content=str):
     dm_channel = await user.create_dm()
     await dm_channel.send(content)
     return
+
+async def GetUserInfo(user=User):
+    info = {
+        "name": user.name,
+        "id": user.id,
+        "discriminator": user.discriminator,
+        "bot": user.bot,
+        "created_at": user.created_at
+    }
+    return info
