@@ -2,13 +2,14 @@
 ### Made in France 
 
 *This project is participating in the Flavortown competition of the HackClub*
+**Vote for me [here](https://flavortown.hackclub.com/projects/7743)**
 
 ## Summary
 - [Key features](#key-features)
 - [How to use](#how-to-use)
 
 ## Key Features
-- Join/Leave embed with image : *WIP*
+- Join/Leave embed with image : ✔️
 - Basic moderation commands : *WIP*
 - Full log system : *WIP*
 - Social media integration : *WIP*

@@ -1,2 +1,5 @@
 discord.py
 asyncio
+Pillow
+python-dotenv
+numpy
