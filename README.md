@@ -10,7 +10,7 @@
 
 ## Key Features
 - Join/Leave embed with image : ✔️
-- Basic moderation commands : *WIP*
+- Basic moderation commands : ✔️
 - Full log system : *WIP*
 - Social media integration : *WIP*
 - Giveaway system : *WIP*
