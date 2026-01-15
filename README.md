@@ -20,8 +20,9 @@
 - Advanced ticket system : *WIP*
 - AI Integration : *WIP*
 - Economy system : *WIP*
-- Casino and minigames : *WIP*
+- Casino : *WIP*
 - XP and level system : *WIP*
+- Minigames : *WIP*
 
 ## How to use
 Soon...
