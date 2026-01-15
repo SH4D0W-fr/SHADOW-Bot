@@ -5,7 +5,6 @@ from config import Config
 
 import discord
 from discord.ext import commands
-import asyncio
 
 # LOAD ENV VARIABLES
 load_dotenv()
