@@ -13,6 +13,40 @@ Logs = {
         "enabled": True,
         "channel_id": 1461276988865253500
     },
+    
+    # Tickets
+    "ticket_create": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_claim": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_close": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_delete": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_rename": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_member_add": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_member_remove": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+    "ticket_autoclose": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
 
     # Messages
     "message_delete": {
@@ -111,4 +145,27 @@ Logs = {
         "enabled": True,
         "channel_id": 1461276988865253500
     },
+}
+
+TicketChannel = 1461708320434950335
+
+TicketAutoPingRole = 1461709099774509169 # When users with this role send a message, the bot will ping the author of the ticket
+
+TicketAutoCloseDelay = 12  # Auto close time when a staff answer and ther isnt response from user, in hours
+
+TicketTypes = {
+    "test1": {
+        "name": "Test 1",
+        "description": "Description du ticket de test 1",
+        "category_id": 1461708362042314938,
+        "staff_roles_id": [1461708434402443274, 1461709099774509169],
+        "roles_to_ping": [1461708434402443274]
+    },
+    "test2": {
+        "name": "Test 2",
+        "description": "Description du ticket de test 2",
+        "category_id": 1461708362042314938,
+        "staff_roles_id": [1461708434402443274, 1461709099774509169],
+        "roles_to_ping": [1461708434402443274]
+    }
 }

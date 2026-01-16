@@ -31,7 +31,7 @@ async def on_ready():
 
 # LOAD FEATURES FUNCTION
 async def load_features():
-    features = ["features.Log", "features.JoinLeave", "features.Moderation", "features.Giveaway"]
+    features = ["features.Log", "features.JoinLeave", "features.Moderation", "features.Giveaway", "features.Tickets"]
     for feature in features:
         try:
             await bot.load_extension(feature)
