@@ -206,4 +206,202 @@ class Database:
             logging.error(f"Erreur récupération giveaway par message_id : {str(e)}")
             return None
 
+    # ========================================================================
+    # TICKETS
+    # ========================================================================
+    
+    def create_ticket(self, server_id: str, channel_id: str, owner_id: str, type_key: str, members: List[int] = None) -> Optional[int]:
+        """Créer un nouveau ticket et retourner son ID"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            members_json = json.dumps(members if members else [int(owner_id)])
+            query = """INSERT INTO tickets (server_id, channel_id, owner_id, type_key, members)
+                       VALUES (%s, %s, %s, %s, %s)"""
+            cursor.execute(query, (server_id, channel_id, owner_id, type_key, members_json))
+            self.connection.commit()
+            ticket_id = cursor.lastrowid
+            cursor.close()
+            logging.info(f"Ticket {ticket_id} créé pour le serveur {server_id}, canal {channel_id}")
+            return ticket_id
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur création ticket : {str(e)}")
+            return None
+    
+    def get_ticket_by_channel(self, channel_id: str) -> Optional[Dict]:
+        """Récupérer un ticket par son ID de canal"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM tickets WHERE channel_id = %s", (channel_id,))
+            result = cursor.fetchone()
+            cursor.close()
+            if result and result.get('members'):
+                result['members'] = json.loads(result['members'])
+            return result
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur récupération ticket : {str(e)}")
+            return None
+    
+    def get_user_tickets(self, server_id: str, owner_id: str, is_closed: bool = False) -> List[Dict]:
+        """Récupérer tous les tickets d'un utilisateur sur un serveur"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor(dictionary=True)
+            query = """SELECT * FROM tickets WHERE server_id = %s AND owner_id = %s AND is_closed = %s"""
+            cursor.execute(query, (server_id, owner_id, is_closed))
+            results = cursor.fetchall()
+            cursor.close()
+            for result in results:
+                if result.get('members'):
+                    result['members'] = json.loads(result['members'])
+            return results
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur récupération tickets utilisateur : {str(e)}")
+            return []
+    
+    def update_ticket_owner_message(self, channel_id: str) -> bool:
+        """Mettre à jour le timestamp du dernier message du propriétaire"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("UPDATE tickets SET last_owner_message = NOW() WHERE channel_id = %s", (channel_id,))
+            self.connection.commit()
+            cursor.close()
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur mise à jour message propriétaire : {str(e)}")
+            return False
+    
+    def update_ticket_staff_message(self, channel_id: str) -> bool:
+        """Mettre à jour le timestamp du dernier message staff"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("UPDATE tickets SET last_staff_message = NOW() WHERE channel_id = %s", (channel_id,))
+            self.connection.commit()
+            cursor.close()
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur mise à jour message staff : {str(e)}")
+            return False
+    
+    def claim_ticket(self, channel_id: str, staff_id: str) -> bool:
+        """Assigner un ticket à un membre du staff"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("UPDATE tickets SET claimed_by_id = %s WHERE channel_id = %s", (staff_id, channel_id))
+            self.connection.commit()
+            cursor.close()
+            logging.info(f"Ticket {channel_id} réclamé par {staff_id}")
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur claim ticket : {str(e)}")
+            return False
+    
+    def unclaim_ticket(self, channel_id: str) -> bool:
+        """Retirer l'assignation d'un ticket"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("UPDATE tickets SET claimed_by_id = NULL WHERE channel_id = %s", (channel_id,))
+            self.connection.commit()
+            cursor.close()
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur unclaim ticket : {str(e)}")
+            return False
+    
+    def add_ticket_member(self, channel_id: str, member_id: int) -> bool:
+        """Ajouter un membre à un ticket"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT members FROM tickets WHERE channel_id = %s", (channel_id,))
+            result = cursor.fetchone()
+            if not result:
+                cursor.close()
+                return False
+            members = json.loads(result[0]) if result[0] else []
+            if member_id not in members:
+                members.append(member_id)
+                cursor.execute("UPDATE tickets SET members = %s WHERE channel_id = %s",
+                             (json.dumps(members), channel_id))
+                self.connection.commit()
+            cursor.close()
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur ajout membre ticket : {str(e)}")
+            return False
+    
+    def remove_ticket_member(self, channel_id: str, member_id: int) -> bool:
+        """Retirer un membre d'un ticket"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT members FROM tickets WHERE channel_id = %s", (channel_id,))
+            result = cursor.fetchone()
+            if not result:
+                cursor.close()
+                return False
+            members = json.loads(result[0]) if result[0] else []
+            if member_id in members:
+                members.remove(member_id)
+                cursor.execute("UPDATE tickets SET members = %s WHERE channel_id = %s",
+                             (json.dumps(members), channel_id))
+                self.connection.commit()
+            cursor.close()
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur retrait membre ticket : {str(e)}")
+            return False
+    
+    def close_ticket(self, channel_id: str, closed_by_id: str, reason: str) -> bool:
+        """Marquer un ticket comme fermé"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            query = """UPDATE tickets SET is_closed = TRUE, closed_at = NOW(), 
+                       closed_by_id = %s, close_reason = %s WHERE channel_id = %s"""
+            cursor.execute(query, (closed_by_id, reason, channel_id))
+            self.connection.commit()
+            cursor.close()
+            logging.info(f"Ticket {channel_id} fermé par {closed_by_id}")
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur fermeture ticket : {str(e)}")
+            return False
+    
+    def delete_ticket(self, channel_id: str) -> bool:
+        """Supprimer définitivement un ticket de la base"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("DELETE FROM tickets WHERE channel_id = %s", (channel_id,))
+            self.connection.commit()
+            cursor.close()
+            logging.info(f"Ticket {channel_id} supprimé de la BDD")
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur suppression ticket : {str(e)}")
+            return False
+    
+    def get_all_tickets(self, server_id: str, is_closed: bool = False) -> List[Dict]:
+        """Récupérer tous les tickets d'un serveur"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor(dictionary=True)
+            query = "SELECT * FROM tickets WHERE server_id = %s AND is_closed = %s"
+            cursor.execute(query, (server_id, is_closed))
+            results = cursor.fetchall()
+            cursor.close()
+            for result in results:
+                if result.get('members'):
+                    result['members'] = json.loads(result['members'])
+            return results
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur récupération tous tickets : {str(e)}")
+            return []
+
 db = Database()
