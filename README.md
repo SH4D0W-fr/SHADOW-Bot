@@ -12,7 +12,7 @@
 - Join/Leave embed with image : ✔️
 - Basic moderation commands : ✔️
 - Full log system : ✔️
-- Giveaway system : *WIP*
+- Giveaway system : ✔️
 - Tournament tree creator : *WIP*
 - Multiple language support : *WIP*
 - FAQ Autoreply system : *WIP*
