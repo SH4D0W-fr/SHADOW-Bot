@@ -14,13 +14,12 @@ class GiveawayCog(commands.Cog):
     
     async def send_giveaway_log(self, embed: discord.Embed):
         if "giveaway" in Config.Logs and Config.Logs["giveaway"]["enabled"]:
-            channel_id = Config.Logs["giveaway"]["channel_id"]
             try:
-                channel = self.bot.get_channel(channel_id)
+                channel = self.bot.get_channel(Config.Logs["giveaway"]["channel_id"])
                 if channel:
                     await channel.send(embed=embed)
             except Exception as e:
-                logging.error(f"Erreur lors de l'envoi du log giveaway: {str(e)}")
+                logging.error(f"Erreur log giveaway: {str(e)}")
 
     @app_commands.command(name="giveaway_create", description="Crée un nouveau giveaway")
     @app_commands.describe(
@@ -43,7 +42,6 @@ class GiveawayCog(commands.Cog):
         conditions: str = None
     ):
         try:
-            # Parser la date et l'heure
             try:
                 date_parts = date.split('/')
                 heure_parts = heure.split(':')
@@ -82,14 +80,10 @@ class GiveawayCog(commands.Cog):
                 await interaction.response.send_message("❌ Le nombre de gagnants doit être positif.", ephemeral=True)
                 return
 
-            # Parsing des prix
             liste_prix = [p.strip() for p in prix.split(",")]
-            
-            # Créer le giveaway
             giveaway_id = str(int(datetime.now().timestamp() * 1000))
             server_id = str(interaction.guild.id)
             
-            # Sauvegarder en base de données
             success = db.create_giveaway(
                 giveaway_id=giveaway_id,
                 server_id=server_id,
@@ -109,22 +103,13 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Récupérer les données du giveaway
             giveaway_data = db.get_giveaway(giveaway_id)
-            
-            # Créer et envoyer l'embed
             embed = self.create_giveaway_embed(giveaway_data, ongoing=True)
-            
             message = await interaction.channel.send(embed=embed)
-            
-            # Sauvegarder l'ID du message
             db.update_giveaway_message_id(giveaway_id, message.id)
-            
-            # Ajouter le bouton de participation
             view = GiveawayView(self, giveaway_id)
             await message.edit(view=view)
             
-            # Calculer le temps restant pour l'affichage
             temps_restant = fin_giveaway - datetime.now()
             heures = int(temps_restant.total_seconds() // 3600)
             minutes = int((temps_restant.total_seconds() % 3600) // 60)
@@ -134,7 +119,6 @@ class GiveawayCog(commands.Cog):
                 ephemeral=True
             )
             
-            # Log de création
             log_embed = discord.Embed(
                 title="🎉 Giveaway créé",
                 description=f"Un nouveau giveaway a été créé",
@@ -162,7 +146,6 @@ class GiveawayCog(commands.Cog):
             )
 
     def create_giveaway_embed(self, giveaway_data: dict, ongoing: bool = True) -> discord.Embed:
-        """Crée l'embed pour afficher le giveaway"""
         couleur = discord.Color.gold() if ongoing else discord.Color.green()
         
         fin_datetime = giveaway_data["giveaway_end_date"]
@@ -186,7 +169,6 @@ class GiveawayCog(commands.Cog):
             inline=False
         )
         
-        # Ajouter les conditions si elles existent
         if giveaway_data.get("giveaway_conditions"):
             embed.add_field(
                 name="📋 Conditions",
@@ -212,7 +194,6 @@ class GiveawayCog(commands.Cog):
             inline=True
         )
         
-        # Ajouter la date de fin
         date_fin_str = fin_datetime.strftime("%d/%m/%Y à %H:%M")
         embed.add_field(
             name="📅 Fin",
@@ -229,26 +210,21 @@ class GiveawayCog(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def check_giveaways(self):
-        """Vérifie périodiquement les giveaways terminés"""
         try:
             now = datetime.now()
-            
-            # Récupérer tous les giveaways actifs
             active_giveaways = db.get_active_giveaways()
             
             for giveaway_data in active_giveaways:
                 fin_datetime = giveaway_data["giveaway_end_date"]
                 
                 if now >= fin_datetime:
-                    # Le giveaway est terminé
                     await self.end_giveaway(giveaway_data["giveaway_id"], giveaway_data)
                     db.mark_giveaway_finished(giveaway_data["giveaway_id"])
                 
         except Exception as e:
-            logging.error(f"Erreur lors de la vérification des giveaways : {str(e)}")
+            logging.error(f"Erreur vérification giveaways : {str(e)}")
 
     async def end_giveaway(self, giveaway_id: str, giveaway_data: dict):
-        """Termine un giveaway et annonce les gagnants"""
         try:
             canal = self.bot.get_channel(int(giveaway_data["giveaway_channel_id"]))
             if not canal:
@@ -268,7 +244,6 @@ class GiveawayCog(commands.Cog):
                     color=discord.Color.red()
                 )
                 
-                # Mettre à jour le message original
                 if giveaway_data.get("giveaway_message_id"):
                     try:
                         message_original = await canal.fetch_message(int(giveaway_data["giveaway_message_id"]))
@@ -276,15 +251,12 @@ class GiveawayCog(commands.Cog):
                     except Exception as e:
                         logging.warning(f"Impossible de modifier le message original : {str(e)}")
                 
-                # Envoyer aussi un message d'annonce
                 await canal.send(embed=embed_annule)
                 logging.info(f"Giveaway {giveaway_id} annulé : pas de participants")
                 return
             
-            # Sélectionner les gagnants
             gagnants = random.sample(participants, nombre_gagnants)
             
-            # Créer l'embed pour le message original (avec les gagnants)
             embed_original = discord.Embed(
                 title=f"🎉 {giveaway_data['giveaway_title']} - Terminé",
                 color=discord.Color.green()
@@ -296,7 +268,6 @@ class GiveawayCog(commands.Cog):
                 inline=False
             )
             
-            # Ajouter les conditions si elles existent
             if giveaway_data.get("giveaway_conditions"):
                 embed_original.add_field(
                     name="📋 Conditions",
@@ -317,7 +288,6 @@ class GiveawayCog(commands.Cog):
                 inline=True
             )
             
-            # Ajouter la date de fin
             date_fin_str = giveaway_data["giveaway_end_date"].strftime("%d/%m/%Y à %H:%M")
             embed_original.add_field(
                 name="📅 Date de fin",
@@ -327,7 +297,6 @@ class GiveawayCog(commands.Cog):
             
             embed_original.set_footer(text="Giveaway terminé")
             
-            # Mettre à jour le message original (enlever le bouton et afficher les gagnants)
             if giveaway_data.get("giveaway_message_id"):
                 try:
                     message_original = await canal.fetch_message(int(giveaway_data["giveaway_message_id"]))
@@ -335,7 +304,6 @@ class GiveawayCog(commands.Cog):
                 except Exception as e:
                     logging.warning(f"Impossible de modifier le message original : {str(e)}")
             
-            # Créer l'embed d'annonce (message séparé)
             embed_annonce = discord.Embed(
                 title=f"🎉 Giveaway terminé !",
                 description=f"Le giveaway **{giveaway_data['giveaway_title']}** est terminé !",
@@ -354,10 +322,8 @@ class GiveawayCog(commands.Cog):
                 inline=False
             )
             
-            # Envoyer le message d'annonce
             await canal.send(embed=embed_annonce)
             
-            # Envoyer des MP aux gagnants
             for gagnant_id in gagnants:
                 try:
                     user = await self.bot.fetch_user(gagnant_id)
@@ -375,7 +341,6 @@ class GiveawayCog(commands.Cog):
                 except Exception as e:
                     logging.warning(f"Impossible d'envoyer un MP au gagnant {gagnant_id} : {str(e)}")
             
-            # Log de fin de giveaway
             log_embed = discord.Embed(
                 title="🏆 Giveaway terminé",
                 description=f"Le giveaway **{giveaway_data['giveaway_title']}** est terminé",
@@ -393,13 +358,12 @@ class GiveawayCog(commands.Cog):
             logging.info(f"Giveaway {giveaway_id} terminé avec {nombre_gagnants} gagnants")
             
         except Exception as e:
-            logging.error(f"Erreur lors de la terminaison du giveaway {giveaway_id} : {str(e)}")
+            logging.error(f"Erreur terminaison giveaway {giveaway_id} : {str(e)}")
 
     @app_commands.command(name="giveaway_participants", description="Affiche les participants du giveaway")
     @app_commands.checks.has_permissions(administrator=True)
     async def giveaway_participants(self, interaction: discord.Interaction):
         try:
-            # Trouver le dernier giveaway non terminé dans ce canal
             giveaway_data = db.get_active_giveaway_by_channel(str(interaction.channel.id))
             
             if not giveaway_data:
@@ -418,9 +382,7 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Créer l'embed avec les participants
             participants_mentions = "\n".join([f"• <@{pid}>" for pid in participants])
-            
             embed = discord.Embed(
                 title=f"📊 Participants du giveaway",
                 description=participants_mentions,
@@ -444,7 +406,6 @@ class GiveawayCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     async def giveaway_delete(self, interaction: discord.Interaction, message_id: str):
         try:
-            # Récupérer le giveaway par message_id
             giveaway_data = db.get_giveaway_by_message_id(message_id)
             
             if not giveaway_data:
@@ -454,7 +415,6 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Vérifier que c'est bien sur ce serveur
             if giveaway_data["server_id"] != str(interaction.guild.id):
                 await interaction.response.send_message(
                     "❌ Ce giveaway n'appartient pas à ce serveur.",
@@ -462,7 +422,6 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Supprimer le message
             try:
                 channel = self.bot.get_channel(int(giveaway_data["giveaway_channel_id"]))
                 if channel:
@@ -471,7 +430,6 @@ class GiveawayCog(commands.Cog):
             except Exception as e:
                 logging.warning(f"Impossible de supprimer le message : {str(e)}")
             
-            # Supprimer de la base de données
             success = db.delete_giveaway(giveaway_data["giveaway_id"])
             
             if success:
@@ -480,7 +438,6 @@ class GiveawayCog(commands.Cog):
                     ephemeral=True
                 )
                 
-                # Log de suppression
                 log_embed = discord.Embed(
                     title="🗑️ Giveaway supprimé",
                     description=f"Un giveaway a été supprimé",
@@ -522,7 +479,6 @@ class GiveawayCog(commands.Cog):
         nombre_gagnants: int = 1
     ):
         try:
-            # Récupérer le giveaway par message_id
             giveaway_data = db.get_giveaway_by_message_id(message_id)
             
             if not giveaway_data:
@@ -532,7 +488,6 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Vérifier que c'est bien sur ce serveur
             if giveaway_data["server_id"] != str(interaction.guild.id):
                 await interaction.response.send_message(
                     "❌ Ce giveaway n'appartient pas à ce serveur.",
@@ -540,7 +495,6 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Vérifier que le giveaway est terminé
             if not giveaway_data["giveaway_is_finished"]:
                 await interaction.response.send_message(
                     "❌ Ce giveaway n'est pas encore terminé. Attendez la fin pour reroll.",
@@ -564,13 +518,9 @@ class GiveawayCog(commands.Cog):
                 )
                 return
             
-            # Répondre immédiatement à l'interaction pour éviter le timeout
             await interaction.response.defer(ephemeral=True)
-            
-            # Sélectionner les nouveaux gagnants
             nouveaux_gagnants = random.sample(participants, nombre_gagnants)
             
-            # Créer l'embed de résultat
             embed = discord.Embed(
                 title=f"🔄 {giveaway_data['giveaway_title']} - Reroll",
                 color=discord.Color.purple()
@@ -585,12 +535,10 @@ class GiveawayCog(commands.Cog):
             
             embed.set_footer(text=f"Reroll effectué par {interaction.user.name}")
             
-            # Envoyer le message
             channel = self.bot.get_channel(int(giveaway_data["giveaway_channel_id"]))
             if channel:
                 await channel.send(embed=embed)
             
-            # Envoyer des MP aux nouveaux gagnants
             for gagnant_id in nouveaux_gagnants:
                 try:
                     user = await self.bot.fetch_user(gagnant_id)
@@ -608,13 +556,11 @@ class GiveawayCog(commands.Cog):
                 except Exception as e:
                     logging.warning(f"Impossible d'envoyer un MP au gagnant {gagnant_id} : {str(e)}")
             
-            # Envoyer le message de confirmation (followup car on a déjà répondu avec defer)
             await interaction.followup.send(
                 f"✅ Reroll effectué ! {nombre_gagnants} {'nouveau gagnant tiré' if nombre_gagnants == 1 else 'nouveaux gagnants tirés'}.",
                 ephemeral=True
             )
             
-            # Log de reroll
             log_embed = discord.Embed(
                 title="🔄 Giveaway Reroll",
                 description=f"Un reroll a été effectué pour le giveaway **{giveaway_data['giveaway_title']}**",
@@ -632,8 +578,7 @@ class GiveawayCog(commands.Cog):
             logging.info(f"Reroll du giveaway {giveaway_data['giveaway_id']} par {interaction.user}")
             
         except Exception as e:
-            logging.error(f"Erreur lors du reroll : {str(e)}")
-            # Vérifier si l'interaction a déjà été répondue
+            logging.error(f"Erreur reroll : {str(e)}")
             if interaction.response.is_done():
                 await interaction.followup.send(
                     f"❌ Erreur : {str(e)}",
@@ -674,7 +619,6 @@ class GiveawayView(discord.ui.View):
             user_id = interaction.user.id
             
             if user_id in giveaway_data["giveaway_participants"]:
-                # L'utilisateur participe déjà, proposer de se désinscrire
                 view = UnsubscribeView(self.giveaway_id)
                 await interaction.response.send_message(
                     "⚠️ Vous participez déjà à ce giveaway !\nVoulez-vous vous désinscrire ?",
@@ -683,7 +627,6 @@ class GiveawayView(discord.ui.View):
                 )
                 return
             
-            # Ajouter l'utilisateur aux participants
             success = db.add_participant(self.giveaway_id, user_id)
             
             if not success:
@@ -693,7 +636,6 @@ class GiveawayView(discord.ui.View):
                 )
                 return
             
-            # Récupérer les données mises à jour
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             await interaction.response.send_message(
@@ -737,7 +679,6 @@ class UnsubscribeView(discord.ui.View):
             
             user_id = interaction.user.id
             
-            # Retirer l'utilisateur des participants
             success = db.remove_participant(self.giveaway_id, user_id)
             
             if not success:
@@ -747,7 +688,6 @@ class UnsubscribeView(discord.ui.View):
                 )
                 return
             
-            # Récupérer les données mises à jour
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             await interaction.response.edit_message(
