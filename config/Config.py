@@ -8,6 +8,12 @@ GoodbyeChannelID = 1460637539563208714
 GoodbyeMessage = "Au revoir, {member} ! Tu vas nous manquer."
 
 Logs = {
+    # Bot features
+    "giveaway": {
+        "enabled": True,
+        "channel_id": 1461276988865253500
+    },
+
     # Messages
     "message_delete": {
         "enabled": True,

@@ -12,7 +12,6 @@
 - Join/Leave embed with image : ✔️
 - Basic moderation commands : ✔️
 - Full log system : ✔️
-- Social media integration : *WIP*
 - Giveaway system : *WIP*
 - Tournament tree creator : *WIP*
 - Multiple language support : *WIP*
