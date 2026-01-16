@@ -3,3 +3,4 @@ asyncio
 Pillow
 python-dotenv
 numpy
+mysql-connector-python

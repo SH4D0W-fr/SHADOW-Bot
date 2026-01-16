@@ -26,10 +26,12 @@ async def on_ready():
     await bot.tree.sync(guild=guild)
     logging.info("Commandes sync pour la guild %s", Config.ServerID)
     logging.info("Connecté en tant que %s", bot.user)
+    servercount = len(bot.guilds)
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name=f"Présent sur {servercount} serveurs"))
 
 # LOAD FEATURES FUNCTION
 async def load_features():
-    features = ["features.Log", "features.JoinLeave", "features.Moderation"]
+    features = ["features.Log", "features.JoinLeave", "features.Moderation", "features.Giveaway"]
     for feature in features:
         try:
             await bot.load_extension(feature)
