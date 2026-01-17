@@ -403,5 +403,40 @@ class Database:
         except mysql.connector.Error as e:
             logging.error(f"Erreur récupération tous tickets : {str(e)}")
             return []
+    
+    # ========================================================================
+    # CONFIGURATIONS
+    # ========================================================================
+    
+    def set_config(self, server_id: str, config_key: str, config_value: str) -> bool:
+        """Définir ou mettre à jour une configuration"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            query = """INSERT INTO configurations (server_id, config_key, config_value)
+                       VALUES (%s, %s, %s)
+                       ON DUPLICATE KEY UPDATE config_value = %s, updated_at = CURRENT_TIMESTAMP"""
+            cursor.execute(query, (server_id, config_key, config_value, config_value))
+            self.connection.commit()
+            cursor.close()
+            logging.info(f"Configuration {config_key} définie pour le serveur {server_id}")
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur définition configuration : {str(e)}")
+            return False
+    
+    def get_config(self, server_id: str, config_key: str) -> Optional[str]:
+        """Récupérer une configuration"""
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            cursor.execute("SELECT config_value FROM configurations WHERE server_id = %s AND config_key = %s",
+                         (server_id, config_key))
+            result = cursor.fetchone()
+            cursor.close()
+            return result[0] if result else None
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur récupération configuration : {str(e)}")
+            return None
 
 db = Database()
