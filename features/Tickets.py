@@ -185,7 +185,6 @@ class TicketsCog(commands.Cog):
         self.logger.info("Système de tickets initialisé")
     
     async def restore_ticket_views(self):
-        """Réattache les vues (boutons) aux messages des tickets après un redémarrage"""
         try:
             for channel_id, ticket in self.ticket_manager.tickets.items():
                 try:
@@ -193,18 +192,13 @@ class TicketsCog(commands.Cog):
                     if not channel:
                         continue
                     
-                    # Récupère les messages du canal
                     async for message in channel.history(limit=10):
-                        # Cherche le message avec l'embed de ticket
                         if message.embeds:
                             embed = message.embeds[0]
                             if "Ticket:" in embed.title or "🎫" in embed.title:
-                                # C'est le message du ticket
                                 if ticket.is_closed:
-                                    # Réattache la vue pour ticket fermé
                                     await message.edit(view=ClosedTicketView(self, channel_id))
                                 else:
-                                    # Réattache la vue pour ticket ouvert
                                     await message.edit(view=TicketActionView(self, channel_id))
                                 break
                 except discord.NotFound:
@@ -216,11 +210,9 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur restauration vues: {e}")
     
     async def restore_ticket_panel(self):
-        """Restaure la vue du panel de tickets après un redémarrage"""
         try:
             from modules.Database import db
             
-            # Vérifier chaque guild
             for guild in self.bot.guilds:
                 server_id = str(guild.id)
                 panel_message_id = db.get_config(server_id, "ticket_panel_message_id")
@@ -237,11 +229,9 @@ class TicketsCog(commands.Cog):
                         
                         if channel:
                             message = await channel.fetch_message(int(panel_message_id))
-                            # Réattache la vue au message du panel
                             await message.edit(view=TicketTypeSelectView(self))
                             self.logger.info(f"Vue du panel de tickets restaurée pour {guild.id}")
                     except discord.NotFound:
-                        # Le message n'existe plus, le prochain /ticket_panel le recréera
                         db.set_config(server_id, "ticket_panel_message_id", "")
                     except Exception as e:
                         self.logger.error(f"Erreur restauration panel pour {guild.id}: {e}")
@@ -272,7 +262,6 @@ class TicketsCog(commands.Cog):
 
             message = await channel.send(embed=embed, view=TicketTypeSelectView(self))
             
-            # Sauvegarder l'ID du message dans la base de données
             server_id = str(interaction.guild.id)
             db.set_config(server_id, "ticket_panel_message_id", str(message.id))
             

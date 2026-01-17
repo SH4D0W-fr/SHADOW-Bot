@@ -206,12 +206,7 @@ class Database:
             logging.error(f"Erreur récupération giveaway par message_id : {str(e)}")
             return None
 
-    # ========================================================================
-    # TICKETS
-    # ========================================================================
-    
     def create_ticket(self, server_id: str, channel_id: str, owner_id: str, type_key: str, members: List[int] = None) -> Optional[int]:
-        """Créer un nouveau ticket et retourner son ID"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -229,7 +224,6 @@ class Database:
             return None
     
     def get_ticket_by_channel(self, channel_id: str) -> Optional[Dict]:
-        """Récupérer un ticket par son ID de canal"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor(dictionary=True)
@@ -244,7 +238,6 @@ class Database:
             return None
     
     def get_user_tickets(self, server_id: str, owner_id: str, is_closed: bool = False) -> List[Dict]:
-        """Récupérer tous les tickets d'un utilisateur sur un serveur"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor(dictionary=True)
@@ -261,7 +254,6 @@ class Database:
             return []
     
     def update_ticket_owner_message(self, channel_id: str) -> bool:
-        """Mettre à jour le timestamp du dernier message du propriétaire"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -274,7 +266,6 @@ class Database:
             return False
     
     def update_ticket_staff_message(self, channel_id: str) -> bool:
-        """Mettre à jour le timestamp du dernier message staff"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -287,7 +278,6 @@ class Database:
             return False
     
     def claim_ticket(self, channel_id: str, staff_id: str) -> bool:
-        """Assigner un ticket à un membre du staff"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -301,7 +291,6 @@ class Database:
             return False
     
     def unclaim_ticket(self, channel_id: str) -> bool:
-        """Retirer l'assignation d'un ticket"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -314,7 +303,6 @@ class Database:
             return False
     
     def add_ticket_member(self, channel_id: str, member_id: int) -> bool:
-        """Ajouter un membre à un ticket"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -336,7 +324,6 @@ class Database:
             return False
     
     def remove_ticket_member(self, channel_id: str, member_id: int) -> bool:
-        """Retirer un membre d'un ticket"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -358,7 +345,6 @@ class Database:
             return False
     
     def close_ticket(self, channel_id: str, closed_by_id: str, reason: str) -> bool:
-        """Marquer un ticket comme fermé"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -374,7 +360,6 @@ class Database:
             return False
     
     def delete_ticket(self, channel_id: str) -> bool:
-        """Supprimer définitivement un ticket de la base"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -388,7 +373,6 @@ class Database:
             return False
     
     def get_all_tickets(self, server_id: str, is_closed: bool = False) -> List[Dict]:
-        """Récupérer tous les tickets d'un serveur"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor(dictionary=True)
@@ -404,12 +388,7 @@ class Database:
             logging.error(f"Erreur récupération tous tickets : {str(e)}")
             return []
     
-    # ========================================================================
-    # CONFIGURATIONS
-    # ========================================================================
-    
     def set_config(self, server_id: str, config_key: str, config_value: str) -> bool:
-        """Définir ou mettre à jour une configuration"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
@@ -426,7 +405,6 @@ class Database:
             return False
     
     def get_config(self, server_id: str, config_key: str) -> Optional[str]:
-        """Récupérer une configuration"""
         try:
             self.ensure_connection()
             cursor = self.connection.cursor()
