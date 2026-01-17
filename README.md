@@ -13,10 +13,10 @@
 - Basic moderation commands : ✔️
 - Full log system : ✔️
 - Giveaway system : ✔️
-- Advanced ticket system : *WIP*
+- Advanced ticket system : ✔️
+- XP and level system : *WIP*
 - Economy system : *WIP*
 - Casino : *WIP*
-- XP and level system : *WIP*
 - Minigames : *WIP*
 - Multiple language support : *WIP*
 - FAQ Autoreply system : *WIP*
