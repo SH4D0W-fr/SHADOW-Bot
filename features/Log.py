@@ -10,8 +10,8 @@ class LogCog(commands.Cog):
         self.bot = bot
 
     def get_log_channel(self, log_type: str) -> int | None:
-        if log_type in Config.Logs and Config.Logs[log_type]["enabled"]:
-            return Config.Logs[log_type]["channel_id"]
+        if Config.LogsEnabled:
+            return Config.LogsChannel
         return None
 
     async def send_log(self, log_type: str, embed: discord.Embed):
