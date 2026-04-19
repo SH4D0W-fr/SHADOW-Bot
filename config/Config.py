@@ -10,6 +10,7 @@ StatusActivityText = "SHADOW Bot en développement"  # Placeholder disponible: {
 
 WelcomeChannelID = 1460637521695211662
 WelcomeMessage = "Bienvenue sur le serveur, {member}!"
+JoinRoles = [1460724364868714654]  # Rôles à attribuer automatiquement aux nouveaux membres
 GoodbyeChannelID = 1460637539563208714
 GoodbyeMessage = "Au revoir, {member} ! Tu vas nous manquer."
 

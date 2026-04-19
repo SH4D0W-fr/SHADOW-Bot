@@ -10,6 +10,35 @@ class JoinLeaveCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    async def assign_join_roles(self, member: discord.Member):
+        role_ids = getattr(Config, "JoinRoles", []) or []
+        if not role_ids:
+            return
+
+        roles_to_add = []
+        for role_id in role_ids:
+            role = member.guild.get_role(role_id)
+            if role is None:
+                logging.warning("Rôle d'arrivée introuvable: %s", role_id)
+                continue
+
+            if role >= member.guild.me.top_role:
+                logging.warning("Rôle d'arrivée %s ignoré: au-dessus du rôle du bot", role.name)
+                continue
+
+            roles_to_add.append(role)
+
+        if not roles_to_add:
+            return
+
+        try:
+            await member.add_roles(*roles_to_add, reason="Attribution automatique des rôles à l'arrivée")
+            logging.info("Rôles d'arrivée attribués à %s: %s", member, ", ".join(role.name for role in roles_to_add))
+        except discord.Forbidden:
+            logging.warning("Permissions insuffisantes pour attribuer les rôles d'arrivée à %s", member)
+        except Exception as e:
+            logging.error("Erreur attribution rôles d'arrivée à %s: %s", member, str(e))
+
     async def build_embed(self, member: discord.Member, title: str, join: bool):
         image = await render_card(member, title, join)
         filename = "welcome.png" if join else "goodbye.png"
@@ -48,6 +77,7 @@ class JoinLeaveCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        await self.assign_join_roles(member)
         await self.send_card(
             member,
             Config.WelcomeChannelID,
