@@ -4,6 +4,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 import logging
 from config import Config
+from modules.I18n import t
 
 class ModerationCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -19,7 +20,7 @@ class ModerationCog(commands.Cog):
             except Exception as e:
                 logging.error(f"Erreur lors de l'envoi du log {log_type}: {str(e)}")
 
-    @app_commands.command(name="kick", description="Expulse un utilisateur du serveur")
+    @app_commands.command(name="kick", description=t("moderation.commands.kick_description", "Expulse un utilisateur du serveur"))
     @app_commands.describe(
         member="Le membre à expulser",
         reason="Raison de l'expulsion (optionnel)"
@@ -29,25 +30,25 @@ class ModerationCog(commands.Cog):
         try:
             if member.top_role >= interaction.user.top_role:
                 await interaction.response.send_message(
-                    "❌ Vous ne pouvez pas expulser cette personne (rôle trop élevé).",
+                    t("moderation.kick.cannot_kick_higher_user", "❌ Vous ne pouvez pas expulser cette personne (rôle trop élevé)."),
                     ephemeral=True
                 )
                 return
 
             if member.top_role >= interaction.guild.me.top_role:
                 await interaction.response.send_message(
-                    "❌ Je ne peux pas expulser cette personne (rôle trop élevé).",
+                    t("moderation.kick.cannot_kick_higher_bot", "❌ Je ne peux pas expulser cette personne (rôle trop élevé)."),
                     ephemeral=True
                 )
                 return
 
             dm_embed = discord.Embed(
-                title="Vous avez été expulsé",
-                description=f"Vous avez été expulsé de {interaction.guild.name}",
+                title=t("moderation.kick.dm_title", "Vous avez été expulsé"),
+                description=t("moderation.kick.dm_description", "Vous avez été expulsé de {guild}", guild=interaction.guild.name),
                 color=discord.Color.red()
             )
             if reason:
-                dm_embed.add_field(name="Raison", value=reason, inline=False)
+                dm_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
             
             try:
                 await member.send(embed=dm_embed)
@@ -57,36 +58,36 @@ class ModerationCog(commands.Cog):
             await member.kick(reason=reason)
 
             embed = discord.Embed(
-                title="Membre expulsé",
-                description=f"{member.mention} a été expulsé du serveur.",
+                title=t("moderation.kick.success_title", "Membre expulsé"),
+                description=t("moderation.kick.success_description", "{member} a été expulsé du serveur.", member=member.mention),
                 color=discord.Color.green()
             )
             if reason:
-                embed.add_field(name="Raison", value=reason, inline=False)
-            embed.set_footer(text=f"Expulsé par {interaction.user.name}")
+                embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            embed.set_footer(text=t("moderation.kick.success_footer", "Expulsé par {moderator}", moderator=interaction.user.name))
 
             await interaction.response.send_message(embed=embed)
             
             # Log de modération
             log_embed = discord.Embed(
-                title="🚪 Utilisateur expulsé (KICK)",
-                description=f"**Utilisateur:** {member.mention}\n**Modérateur:** {interaction.user.mention}",
+                title=t("moderation.kick.log_title", "🚪 Utilisateur expulsé (KICK)"),
+                description=t("moderation.kick.log_description", "**Utilisateur:** {member}\n**Modérateur:** {moderator}", member=member.mention, moderator=interaction.user.mention),
                 color=discord.Color.orange(),
                 timestamp=datetime.now()
             )
             if reason:
-                log_embed.add_field(name="Raison", value=reason, inline=False)
-            log_embed.add_field(name="ID utilisateur", value=member.id, inline=True)
-            log_embed.set_footer(text=f"ID modérateur: {interaction.user.id}")
+                log_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            log_embed.add_field(name=t("moderation.common.user_id_field", "ID utilisateur"), value=member.id, inline=True)
+            log_embed.set_footer(text=t("moderation.common.moderator_id_footer", "ID modérateur: {moderator_id}", moderator_id=interaction.user.id))
             
             await self.send_moderation_log("member_kick", log_embed, interaction.guild)
             logging.info(f"{member} kicked by {interaction.user} - Reason: {reason}")
 
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erreur : {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             logging.error(f"Erreur lors du kick : {str(e)}")
 
-    @app_commands.command(name="ban", description="Bannit un utilisateur du serveur")
+    @app_commands.command(name="ban", description=t("moderation.commands.ban_description", "Bannit un utilisateur du serveur"))
     @app_commands.describe(
         member="Le membre à bannir",
         reason="Raison du bannissement (optionnel)"
@@ -96,25 +97,25 @@ class ModerationCog(commands.Cog):
         try:
             if member.top_role >= interaction.user.top_role:
                 await interaction.response.send_message(
-                    "❌ Vous ne pouvez pas bannir cette personne (rôle trop élevé).",
+                    t("moderation.ban.cannot_ban_higher_user", "❌ Vous ne pouvez pas bannir cette personne (rôle trop élevé)."),
                     ephemeral=True
                 )
                 return
 
             if member.top_role >= interaction.guild.me.top_role:
                 await interaction.response.send_message(
-                    "❌ Je ne peux pas bannir cette personne (rôle trop élevé).",
+                    t("moderation.ban.cannot_ban_higher_bot", "❌ Je ne peux pas bannir cette personne (rôle trop élevé)."),
                     ephemeral=True
                 )
                 return
 
             dm_embed = discord.Embed(
-                title="Vous avez été banni",
-                description=f"Vous avez été banni de {interaction.guild.name}",
+                title=t("moderation.ban.dm_title", "Vous avez été banni"),
+                description=t("moderation.ban.dm_description", "Vous avez été banni de {guild}", guild=interaction.guild.name),
                 color=discord.Color.red()
             )
             if reason:
-                dm_embed.add_field(name="Raison", value=reason, inline=False)
+                dm_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
             
             try:
                 await member.send(embed=dm_embed)
@@ -124,36 +125,36 @@ class ModerationCog(commands.Cog):
             await member.ban(reason=reason)
 
             embed = discord.Embed(
-                title="Membre banni",
-                description=f"{member.mention} a été banni du serveur.",
+                title=t("moderation.ban.success_title", "Membre banni"),
+                description=t("moderation.ban.success_description", "{member} a été banni du serveur.", member=member.mention),
                 color=discord.Color.red()
             )
             if reason:
-                embed.add_field(name="Raison", value=reason, inline=False)
-            embed.set_footer(text=f"Banni par {interaction.user.name}")
+                embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            embed.set_footer(text=t("moderation.ban.success_footer", "Banni par {moderator}", moderator=interaction.user.name))
 
             await interaction.response.send_message(embed=embed)
             
             # Log de modération
             log_embed = discord.Embed(
-                title="🔨 Utilisateur banni (BAN)",
-                description=f"**Utilisateur:** {member.mention}\n**Modérateur:** {interaction.user.mention}",
+                title=t("moderation.ban.log_title", "🔨 Utilisateur banni (BAN)"),
+                description=t("moderation.ban.log_description", "**Utilisateur:** {member}\n**Modérateur:** {moderator}", member=member.mention, moderator=interaction.user.mention),
                 color=discord.Color.dark_red(),
                 timestamp=datetime.now()
             )
             if reason:
-                log_embed.add_field(name="Raison", value=reason, inline=False)
-            log_embed.add_field(name="ID utilisateur", value=member.id, inline=True)
-            log_embed.set_footer(text=f"ID modérateur: {interaction.user.id}")
+                log_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            log_embed.add_field(name=t("moderation.common.user_id_field", "ID utilisateur"), value=member.id, inline=True)
+            log_embed.set_footer(text=t("moderation.common.moderator_id_footer", "ID modérateur: {moderator_id}", moderator_id=interaction.user.id))
             
             await self.send_moderation_log("member_ban", log_embed, interaction.guild)
             logging.info(f"{member} banned by {interaction.user} - Reason: {reason}")
 
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erreur : {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             logging.error(f"Erreur lors du ban : {str(e)}")
 
-    @app_commands.command(name="unban", description="Débannit un utilisateur du serveur")
+    @app_commands.command(name="unban", description=t("moderation.commands.unban_description", "Débannit un utilisateur du serveur"))
     @app_commands.describe(
         user_id="L'ID de l'utilisateur à débannir",
         reason="Raison du débannissement (optionnel)"
@@ -165,36 +166,36 @@ class ModerationCog(commands.Cog):
             await interaction.guild.unban(user, reason=reason)
 
             embed = discord.Embed(
-                title="Utilisateur débanni",
-                description=f"{user.mention} ({user.name}) a été débanni du serveur.",
+                title=t("moderation.unban.success_title", "Utilisateur débanni"),
+                description=t("moderation.unban.success_description", "{user} ({username}) a été débanni du serveur.", user=user.mention, username=user.name),
                 color=discord.Color.green()
             )
             if reason:
-                embed.add_field(name="Raison", value=reason, inline=False)
-            embed.set_footer(text=f"Débanni par {interaction.user.name}")
+                embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            embed.set_footer(text=t("moderation.unban.success_footer", "Débanni par {moderator}", moderator=interaction.user.name))
 
             await interaction.response.send_message(embed=embed)
             
             # Log de modération
             log_embed = discord.Embed(
-                title="🔓 Utilisateur débanni (UNBAN)",
-                description=f"**Utilisateur:** {user.mention}\n**Modérateur:** {interaction.user.mention}",
+                title=t("moderation.unban.log_title", "🔓 Utilisateur débanni (UNBAN)"),
+                description=t("moderation.unban.log_description", "**Utilisateur:** {user}\n**Modérateur:** {moderator}", user=user.mention, moderator=interaction.user.mention),
                 color=discord.Color.green(),
                 timestamp=datetime.now()
             )
             if reason:
-                log_embed.add_field(name="Raison", value=reason, inline=False)
-            log_embed.add_field(name="ID utilisateur", value=user.id, inline=True)
-            log_embed.set_footer(text=f"ID modérateur: {interaction.user.id}")
+                log_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            log_embed.add_field(name=t("moderation.common.user_id_field", "ID utilisateur"), value=user.id, inline=True)
+            log_embed.set_footer(text=t("moderation.common.moderator_id_footer", "ID modérateur: {moderator_id}", moderator_id=interaction.user.id))
             
             await self.send_moderation_log("member_unban", log_embed, interaction.guild)
             logging.info(f"{user} unbanned by {interaction.user} - Reason: {reason}")
 
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erreur : {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             logging.error(f"Erreur lors du unban : {str(e)}")
 
-    @app_commands.command(name="mute", description="Applique un timeout à un utilisateur")
+    @app_commands.command(name="mute", description=t("moderation.commands.mute_description", "Applique un timeout à un utilisateur"))
     @app_commands.describe(
         member="Le membre à timeout",
         duration="Durée du timeout en minutes (par défaut 10, max 40320)",
@@ -205,14 +206,14 @@ class ModerationCog(commands.Cog):
         try:
             if duration > 40320:
                 await interaction.response.send_message(
-                    "❌ La durée maximale du timeout est de 40320 minutes (28 jours).",
+                    t("moderation.mute.max_duration", "❌ La durée maximale du timeout est de 40320 minutes (28 jours)."),
                     ephemeral=True
                 )
                 return
 
             if member.top_role >= interaction.guild.me.top_role:
                 await interaction.response.send_message(
-                    "❌ Je ne peux pas timeout cette personne (rôle trop élevé).",
+                    t("moderation.mute.cannot_timeout_higher", "❌ Je ne peux pas timeout cette personne (rôle trop élevé)."),
                     ephemeral=True
                 )
                 return
@@ -221,41 +222,41 @@ class ModerationCog(commands.Cog):
             await member.timeout(timeout_duration, reason=reason)
 
             embed = discord.Embed(
-                title="Timeout appliqué",
-                description=f"{member.mention} a reçu un timeout.",
+                title=t("moderation.mute.success_title", "Timeout appliqué"),
+                description=t("moderation.mute.success_description", "{member} a reçu un timeout.", member=member.mention),
                 color=discord.Color.orange()
             )
-            embed.add_field(name="Durée", value=f"{duration} minutes", inline=False)
+            embed.add_field(name=t("moderation.mute.duration_field", "Durée"), value=t("moderation.mute.duration_value", "{duration} minutes", duration=duration), inline=False)
             if reason:
-                embed.add_field(name="Raison", value=reason, inline=False)
-            embed.set_footer(text=f"Timeout par {interaction.user.name}")
+                embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            embed.set_footer(text=t("moderation.mute.success_footer", "Timeout par {moderator}", moderator=interaction.user.name))
 
             await interaction.response.send_message(embed=embed)
             
             # Log de modération
             log_embed = discord.Embed(
-                title="🔇 Timeout appliqué (MUTE)",
-                description=f"**Utilisateur:** {member.mention}\n**Modérateur:** {interaction.user.mention}",
+                title=t("moderation.mute.log_title", "🔇 Timeout appliqué (MUTE)"),
+                description=t("moderation.mute.log_description", "**Utilisateur:** {member}\n**Modérateur:** {moderator}", member=member.mention, moderator=interaction.user.mention),
                 color=discord.Color.orange(),
                 timestamp=datetime.now()
             )
-            log_embed.add_field(name="Durée", value=f"{duration} minutes", inline=True)
+            log_embed.add_field(name=t("moderation.mute.duration_field", "Durée"), value=t("moderation.mute.duration_value", "{duration} minutes", duration=duration), inline=True)
             if reason:
-                log_embed.add_field(name="Raison", value=reason, inline=False)
-            log_embed.add_field(name="ID utilisateur", value=member.id, inline=True)
-            log_embed.set_footer(text=f"ID modérateur: {interaction.user.id}")
+                log_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            log_embed.add_field(name=t("moderation.common.user_id_field", "ID utilisateur"), value=member.id, inline=True)
+            log_embed.set_footer(text=t("moderation.common.moderator_id_footer", "ID modérateur: {moderator_id}", moderator_id=interaction.user.id))
             
             await self.send_moderation_log("member_timeout", log_embed, interaction.guild)
             logging.info(f"{member} timed out by {interaction.user} for {duration} minutes - Reason: {reason}")
 
         except discord.Forbidden:
-            await interaction.response.send_message("❌ Je n'ai pas les permissions nécessaires pour timeout ce membre.", ephemeral=True)
+            await interaction.response.send_message(t("moderation.mute.missing_permissions", "❌ Je n'ai pas les permissions nécessaires pour timeout ce membre."), ephemeral=True)
             logging.error("Permission manquante pour timeout")
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erreur : {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             logging.error(f"Erreur lors du timeout : {str(e)}")
 
-    @app_commands.command(name="unmute", description="Retire le timeout d'un utilisateur")
+    @app_commands.command(name="unmute", description=t("moderation.commands.unmute_description", "Retire le timeout d'un utilisateur"))
     @app_commands.describe(
         member="Le membre dont retirer le timeout",
         reason="Raison du retrait du timeout (optionnel)"
@@ -266,36 +267,36 @@ class ModerationCog(commands.Cog):
             await member.timeout(None, reason=reason)
 
             embed = discord.Embed(
-                title="Timeout retiré",
-                description=f"{member.mention} a maintenant la parole.",
+                title=t("moderation.unmute.success_title", "Timeout retiré"),
+                description=t("moderation.unmute.success_description", "{member} a maintenant la parole.", member=member.mention),
                 color=discord.Color.green()
             )
             if reason:
-                embed.add_field(name="Raison", value=reason, inline=False)
-            embed.set_footer(text=f"Timeout retiré par {interaction.user.name}")
+                embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            embed.set_footer(text=t("moderation.unmute.success_footer", "Timeout retiré par {moderator}", moderator=interaction.user.name))
 
             await interaction.response.send_message(embed=embed)
             
             # Log de modération
             log_embed = discord.Embed(
-                title="🔊 Timeout retiré (UNMUTE)",
-                description=f"**Utilisateur:** {member.mention}\n**Modérateur:** {interaction.user.mention}",
+                title=t("moderation.unmute.log_title", "🔊 Timeout retiré (UNMUTE)"),
+                description=t("moderation.unmute.log_description", "**Utilisateur:** {member}\n**Modérateur:** {moderator}", member=member.mention, moderator=interaction.user.mention),
                 color=discord.Color.green(),
                 timestamp=datetime.now()
             )
             if reason:
-                log_embed.add_field(name="Raison", value=reason, inline=False)
-            log_embed.add_field(name="ID utilisateur", value=member.id, inline=True)
-            log_embed.set_footer(text=f"ID modérateur: {interaction.user.id}")
+                log_embed.add_field(name=t("moderation.common.reason_field", "Raison"), value=reason, inline=False)
+            log_embed.add_field(name=t("moderation.common.user_id_field", "ID utilisateur"), value=member.id, inline=True)
+            log_embed.set_footer(text=t("moderation.common.moderator_id_footer", "ID modérateur: {moderator_id}", moderator_id=interaction.user.id))
             
             await self.send_moderation_log("member_timeout", log_embed, interaction.guild)
             logging.info(f"{member} timeout removed by {interaction.user} - Reason: {reason}")
 
         except Exception as e:
-            await interaction.response.send_message(f"❌ Erreur : {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             logging.error(f"Erreur lors du retrait du timeout : {str(e)}")
 
-    @app_commands.command(name="purge", description="Supprime un nombre de messages")
+    @app_commands.command(name="purge", description=t("moderation.commands.purge_description", "Supprime un nombre de messages"))
     @app_commands.describe(
         amount="Le nombre de messages à supprimer (max 100)",
         user="Filtrer par utilisateur (optionnel)"
@@ -305,7 +306,7 @@ class ModerationCog(commands.Cog):
         try:
             if amount > 100:
                 await interaction.response.send_message(
-                    "❌ Vous ne pouvez pas supprimer plus de 100 messages.",
+                    t("moderation.purge.max_100", "❌ Vous ne pouvez pas supprimer plus de 100 messages."),
                     ephemeral=True
                 )
                 return
@@ -320,23 +321,23 @@ class ModerationCog(commands.Cog):
             deleted = await interaction.channel.purge(limit=amount, check=filter_messages)
 
             embed = discord.Embed(
-                title="Messages supprimés",
-                description=f"{len(deleted)} message(s) supprimé(s).",
+                title=t("moderation.purge.success_title", "Messages supprimés"),
+                description=t("moderation.purge.success_description", "{count} message(s) supprimé(s).", count=len(deleted)),
                 color=discord.Color.green()
             )
             if user:
-                embed.add_field(name="Utilisateur", value=user.mention, inline=False)
-            embed.set_footer(text=f"Purgé par {interaction.user.name}")
+                embed.add_field(name=t("moderation.purge.user_field", "Utilisateur"), value=user.mention, inline=False)
+            embed.set_footer(text=t("moderation.purge.success_footer", "Purgé par {moderator}", moderator=interaction.user.name))
 
             await interaction.followup.send(embed=embed, ephemeral=True)
             logging.info(f"{len(deleted)} messages purged by {interaction.user} - User filter: {user}")
 
         except discord.Forbidden:
-            await interaction.followup.send("❌ Je n'ai pas les permissions nécessaires.", ephemeral=True)
+            await interaction.followup.send(t("moderation.purge.missing_permissions", "❌ Je n'ai pas les permissions nécessaires."), ephemeral=True)
             logging.error("Permission manquante pour purge")
         except Exception as e:
             try:
-                await interaction.followup.send(f"❌ Erreur : {str(e)}", ephemeral=True)
+                await interaction.followup.send(t("moderation.common.generic_error", "❌ Erreur : {error}", error=str(e)), ephemeral=True)
             except:
                 pass
             logging.error(f"Erreur lors de la purge : {str(e)}")

@@ -8,6 +8,7 @@ import asyncio
 
 from config import Config
 from modules.TicketManager import TicketManager
+from modules.I18n import t
 
 class TicketTypeSelect(discord.ui.Select):
     def __init__(self, cog: "TicketsCog"):
@@ -24,7 +25,7 @@ class TicketTypeSelect(discord.ui.Select):
             )
         
         super().__init__(
-            placeholder="Choisissez un type de ticket",
+            placeholder=t("tickets.ui.select_placeholder", "Choisissez un type de ticket"),
             min_values=1,
             max_values=1,
             options=options
@@ -46,19 +47,19 @@ class TicketActionView(discord.ui.View):
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
 
-    @discord.ui.button(label="Claim", style=discord.ButtonStyle.primary, emoji="✋")
+    @discord.ui.button(label=t("tickets.ui.button_claim", "Claim"), style=discord.ButtonStyle.primary, emoji="✋")
     async def claim_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cog.claim_ticket_command(interaction, self.ticket_channel_id)
 
-    @discord.ui.button(label="Fermer", style=discord.ButtonStyle.red, emoji="🔒")
+    @discord.ui.button(label=t("tickets.ui.button_close", "Fermer"), style=discord.ButtonStyle.red, emoji="🔒")
     async def close_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cog.close_ticket_command(interaction, "Fermé par staff")
 
-    @discord.ui.button(label="Renommer", style=discord.ButtonStyle.secondary, emoji="✏️")
+    @discord.ui.button(label=t("tickets.ui.button_rename", "Renommer"), style=discord.ButtonStyle.secondary, emoji="✏️")
     async def rename_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(RenameTicketModal(self.cog, self.ticket_channel_id))
 
-    @discord.ui.button(label="Transcrire", style=discord.ButtonStyle.blurple, emoji="📄")
+    @discord.ui.button(label=t("tickets.ui.button_transcript", "Transcrire"), style=discord.ButtonStyle.blurple, emoji="📄")
     async def transcript(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=True)
         try:
@@ -76,16 +77,16 @@ class TicketActionView(discord.ui.View):
                 await interaction.followup.send(file=transcript_file, ephemeral=True)
                 logging.info(f"Transcription générée pour le ticket {self.ticket_channel_id}")
             else:
-                await interaction.followup.send("❌ Canal non trouvé", ephemeral=True)
+                await interaction.followup.send(t("tickets.transcript.channel_not_found", "❌ Canal non trouvé"), ephemeral=True)
         except Exception as e:
             logging.error(f"Erreur transcription: {e}")
-            await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
+            await interaction.followup.send(t("tickets.transcript.generic_error", "❌ Erreur: {error}", error=str(e)), ephemeral=True)
 
-    @discord.ui.button(label="Ajouter membre", style=discord.ButtonStyle.green, emoji="➕")
+    @discord.ui.button(label=t("tickets.ui.button_add_member", "Ajouter membre"), style=discord.ButtonStyle.green, emoji="➕")
     async def add_member(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(AddMemberModal(self.cog, self.ticket_channel_id))
 
-    @discord.ui.button(label="Retirer membre", style=discord.ButtonStyle.danger, emoji="➖")
+    @discord.ui.button(label=t("tickets.ui.button_remove_member", "Retirer membre"), style=discord.ButtonStyle.danger, emoji="➖")
     async def remove_member(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_modal(RemoveMemberModal(self.cog, self.ticket_channel_id))
 
@@ -96,19 +97,19 @@ class ClosedTicketView(discord.ui.View):
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
 
-    @discord.ui.button(label="Supprimer", style=discord.ButtonStyle.danger, emoji="🗑️")
+    @discord.ui.button(label=t("tickets.ui.button_delete", "Supprimer"), style=discord.ButtonStyle.danger, emoji="🗑️")
     async def delete_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cog.delete_ticket_command(interaction, self.ticket_channel_id)
 
 
 class RenameTicketModal(discord.ui.Modal):
     def __init__(self, cog: "TicketsCog", ticket_channel_id: int):
-        super().__init__(title="Renommer le ticket")
+        super().__init__(title=t("tickets.ui.modal_rename_title", "Renommer le ticket"))
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
         self.name_input = discord.ui.TextInput(
-            label="Nouveau nom",
-            placeholder="nouveau-nom-ticket",
+            label=t("tickets.ui.modal_rename_field", "Nouveau nom"),
+            placeholder=t("tickets.ui.modal_rename_placeholder", "nouveau-nom-ticket"),
             min_length=2,
             max_length=100
         )
@@ -120,12 +121,12 @@ class RenameTicketModal(discord.ui.Modal):
 
 class AddMemberModal(discord.ui.Modal):
     def __init__(self, cog: "TicketsCog", ticket_channel_id: int):
-        super().__init__(title="Ajouter un membre")
+        super().__init__(title=t("tickets.ui.modal_add_member_title", "Ajouter un membre"))
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
         self.member_input = discord.ui.TextInput(
-            label="Mention ou ID du membre",
-            placeholder="@user ou user_id"
+            label=t("tickets.ui.modal_member_field", "Mention ou ID du membre"),
+            placeholder=t("tickets.ui.modal_member_placeholder", "@user ou user_id")
         )
         self.add_item(self.member_input)
 
@@ -135,12 +136,12 @@ class AddMemberModal(discord.ui.Modal):
 
 class RemoveMemberModal(discord.ui.Modal):
     def __init__(self, cog: "TicketsCog", ticket_channel_id: int):
-        super().__init__(title="Retirer un membre")
+        super().__init__(title=t("tickets.ui.modal_remove_member_title", "Retirer un membre"))
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
         self.member_input = discord.ui.TextInput(
-            label="Mention ou ID du membre",
-            placeholder="@user ou user_id"
+            label=t("tickets.ui.modal_member_field", "Mention ou ID du membre"),
+            placeholder=t("tickets.ui.modal_member_placeholder", "@user ou user_id")
         )
         self.add_item(self.member_input)
 
@@ -242,7 +243,7 @@ class TicketsCog(commands.Cog):
         for task in self.ticket_manager.autoclose_delays.values():
             task.cancel()
 
-    @app_commands.command(name="ticket_panel", description="Envoie le panel d'ouverture de tickets")
+    @app_commands.command(name="ticket_panel", description=t("tickets.commands.panel_description", "Envoie le panel d'ouverture de tickets"))
     @app_commands.checks.has_permissions(administrator=True)
     async def ticket_panel(self, interaction: discord.Interaction):
         try:
@@ -250,33 +251,33 @@ class TicketsCog(commands.Cog):
             
             channel = self.bot.get_channel(Config.TicketChannel) or await self.bot.fetch_channel(Config.TicketChannel)
             if not channel:
-                await interaction.response.send_message("❌ TicketChannel non trouvé", ephemeral=True)
+                await interaction.response.send_message(t("tickets.panel.channel_not_found", "❌ TicketChannel non trouvé"), ephemeral=True)
                 return
 
             embed = discord.Embed(
-                title="🎫 Tickets",
-                description="Choississez le type de ticket que vous souhaitez ouvrir en utilisant le menu ci-dessous. Merci de fournir autant de détails que possible afin que notre équipe puisse vous aider efficacement.",
+                title=t("tickets.panel.embed_title", "🎫 Tickets"),
+                description=t("tickets.panel.embed_description", "Choississez le type de ticket que vous souhaitez ouvrir en utilisant le menu ci-dessous. Merci de fournir autant de détails que possible afin que notre équipe puisse vous aider efficacement."),
                 color=discord.Color.blurple()
             )
-            embed.set_footer(text="Cliquez sur le menu ci-dessous pour choisir la catégorie de votre ticket.")
+            embed.set_footer(text=t("tickets.panel.embed_footer", "Cliquez sur le menu ci-dessous pour choisir la catégorie de votre ticket."))
 
             message = await channel.send(embed=embed, view=TicketTypeSelectView(self))
             
             server_id = str(interaction.guild.id)
             db.set_config(server_id, "ticket_panel_message_id", str(message.id))
             
-            await interaction.response.send_message("✅ Panel envoyé", ephemeral=True)
+            await interaction.response.send_message(t("tickets.panel.sent", "✅ Panel envoyé"), ephemeral=True)
             self.logger.info(f"Panel de tickets envoyé dans {Config.TicketChannel} - Message ID: {message.id}")
         except Exception as e:
             self.logger.error(f"Erreur envoi panel: {e}")
-            await interaction.response.send_message(f"❌ Erreur: {str(e)}", ephemeral=True)
+            await interaction.response.send_message(t("tickets.panel.generic_error", "❌ Erreur: {error}", error=str(e)), ephemeral=True)
 
     async def create_ticket_for_user(self, interaction: discord.Interaction, ticket_type_key: str):
         await interaction.response.defer(ephemeral=True)
         
         try:
             if ticket_type_key not in Config.TicketTypes:
-                await interaction.followup.send("❌ Type de ticket invalide", ephemeral=True)
+                await interaction.followup.send(t("tickets.create.invalid_type", "❌ Type de ticket invalide"), ephemeral=True)
                 return
 
             ticket_type = Config.TicketTypes[ticket_type_key]
@@ -286,7 +287,7 @@ class TicketsCog(commands.Cog):
             category = guild.get_channel(category_id) or await guild.fetch_channel(category_id)
             if not isinstance(category, discord.CategoryChannel):
                 self.logger.error(f"Catégorie {category_id} invalide pour type {ticket_type_key}")
-                await interaction.followup.send("❌ Catégorie de ticket non trouvée", ephemeral=True)
+                await interaction.followup.send(t("tickets.create.category_not_found", "❌ Catégorie de ticket non trouvée"), ephemeral=True)
                 return
 
             user_tickets = self.ticket_manager.get_user_open_tickets(str(guild.id), interaction.user.id)
@@ -325,19 +326,19 @@ class TicketsCog(commands.Cog):
             )
 
             embed = discord.Embed(
-                title=f"🎫 Ticket: {ticket_type['name']}",
-                description="Merci d'avoir ouvert un ticket. Le staff vous répondra bientôt.",
+                title=t("tickets.create.embed_title", "🎫 Ticket: {type}", type=ticket_type['name']),
+                description=t("tickets.create.embed_description", "Merci d'avoir ouvert un ticket. Le staff vous répondra bientôt."),
                 color=discord.Color.green()
             )
-            embed.add_field(name="Type", value=ticket_type["name"], inline=True)
-            embed.add_field(name="Auteur", value=interaction.user.mention, inline=True)
-            embed.add_field(name="Créé à", value=f"<t:{int(datetime.now().timestamp())}:F>", inline=False)
+            embed.add_field(name=t("tickets.create.type_field", "Type"), value=ticket_type["name"], inline=True)
+            embed.add_field(name=t("tickets.create.author_field", "Auteur"), value=interaction.user.mention, inline=True)
+            embed.add_field(name=t("tickets.create.created_at_field", "Créé à"), value=f"<t:{int(datetime.now().timestamp())}:F>", inline=False)
             embed.add_field(
-                name="Instructions",
-                value="• Merci de décrire votre problème en détail, et de fournir autant d'information que nécessaire\n• Veuillez attendre la réponse du staff, ces derniers répondront à votre demande sous les plus brefs délais",
+                name=t("tickets.create.instructions_field", "Instructions"),
+                value=t("tickets.create.instructions_value", "• Merci de décrire votre problème en détail, et de fournir autant d'information que nécessaire\n• Veuillez attendre la réponse du staff, ces derniers répondront à votre demande sous les plus brefs délais"),
                 inline=False
             )
-            embed.set_footer(text=f"Ticket ID: {ticket_channel.id}")
+            embed.set_footer(text=t("tickets.create.footer", "Ticket ID: {ticket_id}", ticket_id=ticket_channel.id))
 
             ping_text = ""
             if ticket_type.get("roles_to_ping"):
@@ -353,7 +354,7 @@ class TicketsCog(commands.Cog):
             message = await ticket_channel.send(content=message_content, embed=embed, view=TicketActionView(self, ticket_channel.id))
 
             await interaction.followup.send(
-                f"✅ Ticket créé: {ticket_channel.mention}",
+                t("tickets.create.success", "✅ Ticket créé: {channel}", channel=ticket_channel.mention),
                 ephemeral=True
             )
             self.logger.info(f"Ticket créé pour {interaction.user} ({interaction.user.id}) - Type: {ticket_type_key} - Canal: {ticket_channel.id}")
@@ -372,10 +373,10 @@ class TicketsCog(commands.Cog):
 
         except discord.Forbidden:
             self.logger.error("Permissions insuffisantes pour créer le canal")
-            await interaction.followup.send("❌ Permissions insuffisantes", ephemeral=True)
+            await interaction.followup.send(t("tickets.create.missing_permissions", "❌ Permissions insuffisantes"), ephemeral=True)
         except Exception as e:
             self.logger.error(f"Erreur création ticket: {e}")
-            await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
+            await interaction.followup.send(t("tickets.create.generic_error", "❌ Erreur: {error}", error=str(e)), ephemeral=True)
 
     async def claim_ticket_command(self, interaction: discord.Interaction, channel_id: int):
         await interaction.response.defer(ephemeral=True)
@@ -517,7 +518,7 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur suppression ticket: {e}")
             await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
-    @app_commands.command(name="ticket_close", description="Ferme le ticket")
+    @app_commands.command(name="ticket_close", description=t("tickets.commands.close_description", "Ferme le ticket"))
     @app_commands.describe(reason="Raison de la fermeture")
     async def ticket_close(self, interaction: discord.Interaction, reason: str = "Aucune raison fournie"):
         await self.close_ticket_command(interaction, reason)
@@ -584,7 +585,7 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur fermeture ticket: {e}")
             await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
-    @app_commands.command(name="ticket_add", description="Ajoute un membre au ticket")
+    @app_commands.command(name="ticket_add", description=t("tickets.commands.add_description", "Ajoute un membre au ticket"))
     @app_commands.describe(member="Membre à ajouter")
     async def ticket_add_member(self, interaction: discord.Interaction, member: discord.Member):
         await self.add_member_to_ticket(interaction, interaction.channel.id, member.mention)
@@ -642,7 +643,7 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur ajout membre: {e}")
             await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
-    @app_commands.command(name="ticket_remove", description="Retire un membre du ticket")
+    @app_commands.command(name="ticket_remove", description=t("tickets.commands.remove_description", "Retire un membre du ticket"))
     @app_commands.describe(member="Membre à retirer")
     async def ticket_remove_member(self, interaction: discord.Interaction, member: discord.Member):
         await self.remove_member_from_ticket(interaction, interaction.channel.id, member.mention)
@@ -697,7 +698,7 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur retrait membre: {e}")
             await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
-    @app_commands.command(name="ticket_rename", description="Renomme le ticket")
+    @app_commands.command(name="ticket_rename", description=t("tickets.commands.rename_description", "Renomme le ticket"))
     @app_commands.describe(name="Nouveau nom")
     async def ticket_rename(self, interaction: discord.Interaction, name: str):
         await interaction.response.defer(ephemeral=True)

@@ -5,6 +5,7 @@ from config import Config
 
 import discord
 from discord.ext import commands
+from modules.I18n import load_locale, t
 
 # LOAD ENV VARIABLES
 load_dotenv()
@@ -19,6 +20,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 # STARTUP EVENT
 @bot.event
 async def on_ready():
+    active_locale = load_locale(Config.Language)
     await load_features()
     
     guild = discord.Object(id=Config.ServerID)
@@ -26,8 +28,10 @@ async def on_ready():
     await bot.tree.sync(guild=guild)
     logging.info("Commandes sync pour la guild %s", Config.ServerID)
     logging.info("Connecté en tant que %s", bot.user)
+    logging.info("Locale chargée: %s", active_locale)
     servercount = len(bot.guilds)
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name=f"Présent sur {servercount} serveurs"))
+    presence_text = t("app.presence_playing", "Présent sur {servercount} serveurs", servercount=servercount)
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.playing, name=presence_text))
 
 # LOAD FEATURES FUNCTION
 async def load_features():

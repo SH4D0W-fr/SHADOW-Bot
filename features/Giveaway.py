@@ -6,6 +6,7 @@ import logging
 import random
 from modules.Database import db
 from config import Config
+from modules.I18n import t
 
 class GiveawayCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -21,7 +22,7 @@ class GiveawayCog(commands.Cog):
             except Exception as e:
                 logging.error(f"Erreur log giveaway: {str(e)}")
 
-    @app_commands.command(name="giveaway_create", description="Crée un nouveau giveaway")
+    @app_commands.command(name="giveaway_create", description=t("giveaway.commands.create_description", "Crée un nouveau giveaway"))
     @app_commands.describe(
         titre="Titre du giveaway",
         date="Date de fin (format: JJ/MM/AAAA)",
@@ -48,7 +49,7 @@ class GiveawayCog(commands.Cog):
                 
                 if len(date_parts) != 3 or len(heure_parts) != 2:
                     await interaction.response.send_message(
-                        "❌ Format de date ou heure invalide. Utilisez JJ/MM/AAAA pour la date et HH:MM pour l'heure.",
+                        t("giveaway.create.invalid_date_time_format", "❌ Format de date ou heure invalide. Utilisez JJ/MM/AAAA pour la date et HH:MM pour l'heure."),
                         ephemeral=True
                     )
                     return
@@ -64,20 +65,20 @@ class GiveawayCog(commands.Cog):
                 # Vérifier que la date est dans le futur
                 if fin_giveaway <= datetime.now():
                     await interaction.response.send_message(
-                        "❌ La date de fin doit être dans le futur.",
+                        t("giveaway.create.end_date_must_be_future", "❌ La date de fin doit être dans le futur."),
                         ephemeral=True
                     )
                     return
                     
             except ValueError as e:
                 await interaction.response.send_message(
-                    f"❌ Erreur de format de date/heure : {str(e)}",
+                    t("giveaway.create.date_time_parse_error", "❌ Erreur de format de date/heure : {error}", error=str(e)),
                     ephemeral=True
                 )
                 return
 
             if nombre_gagnants <= 0:
-                await interaction.response.send_message("❌ Le nombre de gagnants doit être positif.", ephemeral=True)
+                await interaction.response.send_message(t("giveaway.create.winner_count_must_be_positive", "❌ Le nombre de gagnants doit être positif."), ephemeral=True)
                 return
 
             liste_prix = [p.strip() for p in prix.split(",")]
@@ -98,7 +99,7 @@ class GiveawayCog(commands.Cog):
             
             if not success:
                 await interaction.response.send_message(
-                    "❌ Erreur lors de la sauvegarde du giveaway en base de données.",
+                    t("giveaway.create.database_save_error", "❌ Erreur lors de la sauvegarde du giveaway en base de données."),
                     ephemeral=True
                 )
                 return
@@ -115,7 +116,7 @@ class GiveawayCog(commands.Cog):
             minutes = int((temps_restant.total_seconds() % 3600) // 60)
             
             await interaction.response.send_message(
-                f"✅ Giveaway créé ! Il se terminera le {date} à {heure} (dans {heures}h {minutes}m).",
+                t("giveaway.create.success", "✅ Giveaway créé ! Il se terminera le {date} à {heure} (dans {heures}h {minutes}m).", date=date, heure=heure, heures=heures, minutes=minutes),
                 ephemeral=True
             )
             
@@ -141,7 +142,7 @@ class GiveawayCog(commands.Cog):
         except Exception as e:
             logging.error(f"Erreur lors de la création du giveaway : {str(e)}")
             await interaction.response.send_message(
-                f"❌ Erreur lors de la création du giveaway : {str(e)}",
+                t("giveaway.create.generic_error", "❌ Erreur lors de la création du giveaway : {error}", error=str(e)),
                 ephemeral=True
             )
 
@@ -156,7 +157,7 @@ class GiveawayCog(commands.Cog):
             minutes = int((temps_restant.total_seconds() % 3600) // 60)
             temps_str = f"{heures}h {minutes}m" if heures > 0 else f"{minutes}m"
         else:
-            temps_str = "Terminé"
+            temps_str = t("giveaway.embed.ended", "Terminé")
         
         embed = discord.Embed(
             title=f"🎉 {giveaway_data['giveaway_title']}",
@@ -164,47 +165,47 @@ class GiveawayCog(commands.Cog):
         )
         
         embed.add_field(
-            name="🎁 Prix",
+            name=t("giveaway.embed.price_field", "🎁 Prix"),
             value="\n".join([f"• {prix}" for prix in giveaway_data["giveaway_prizes"]]),
             inline=False
         )
         
         if giveaway_data.get("giveaway_conditions"):
             embed.add_field(
-                name="📋 Conditions",
+                name=t("giveaway.embed.conditions_field", "📋 Conditions"),
                 value=giveaway_data["giveaway_conditions"],
                 inline=False
             )
         
         embed.add_field(
-            name="👥 Gagnants",
+            name=t("giveaway.embed.winners_field", "👥 Gagnants"),
             value=str(giveaway_data["giveaway_winner_count"]),
             inline=True
         )
         
         embed.add_field(
-            name="⏱️ Temps restant",
+            name=t("giveaway.embed.remaining_time_field", "⏱️ Temps restant"),
             value=temps_str,
             inline=True
         )
         
         embed.add_field(
-            name="📊 Participants",
+            name=t("giveaway.embed.participants_field", "📊 Participants"),
             value=str(len(giveaway_data["giveaway_participants"])),
             inline=True
         )
         
         date_fin_str = fin_datetime.strftime("%d/%m/%Y à %H:%M")
         embed.add_field(
-            name="📅 Fin",
+            name=t("giveaway.embed.end_field", "📅 Fin"),
             value=date_fin_str,
             inline=False
         )
         
         if not ongoing:
-            embed.set_footer(text="Giveaway terminé")
+            embed.set_footer(text=t("giveaway.embed.ended_footer", "Giveaway terminé"))
         else:
-            embed.set_footer(text=f"Cliquez sur le bouton pour participer")
+            embed.set_footer(text=t("giveaway.embed.join_footer", "Cliquez sur le bouton pour participer"))
         
         return embed
 
@@ -360,7 +361,7 @@ class GiveawayCog(commands.Cog):
         except Exception as e:
             logging.error(f"Erreur terminaison giveaway {giveaway_id} : {str(e)}")
 
-    @app_commands.command(name="giveaway_participants", description="Affiche les participants du giveaway")
+    @app_commands.command(name="giveaway_participants", description=t("giveaway.commands.participants_description", "Affiche les participants du giveaway"))
     @app_commands.checks.has_permissions(administrator=True)
     async def giveaway_participants(self, interaction: discord.Interaction):
         try:
@@ -368,7 +369,7 @@ class GiveawayCog(commands.Cog):
             
             if not giveaway_data:
                 await interaction.response.send_message(
-                    "❌ Aucun giveaway actif dans ce canal.",
+                    t("giveaway.participants.no_active", "❌ Aucun giveaway actif dans ce canal."),
                     ephemeral=True
                 )
                 return
@@ -377,29 +378,29 @@ class GiveawayCog(commands.Cog):
             
             if not participants:
                 await interaction.response.send_message(
-                    "ℹ️ Aucun participant pour le moment.",
+                    t("giveaway.participants.none_yet", "ℹ️ Aucun participant pour le moment."),
                     ephemeral=True
                 )
                 return
             
             participants_mentions = "\n".join([f"• <@{pid}>" for pid in participants])
             embed = discord.Embed(
-                title=f"📊 Participants du giveaway",
+                title=t("giveaway.participants.title", "📊 Participants du giveaway"),
                 description=participants_mentions,
                 color=discord.Color.blue()
             )
-            embed.add_field(name="Total", value=str(len(participants)), inline=False)
+            embed.add_field(name=t("giveaway.participants.total_field", "Total"), value=str(len(participants)), inline=False)
             
             await interaction.response.send_message(embed=embed, ephemeral=True)
             
         except Exception as e:
             logging.error(f"Erreur : {str(e)}")
             await interaction.response.send_message(
-                f"❌ Erreur : {str(e)}",
+                t("giveaway.participants.generic_error", "❌ Erreur : {error}", error=str(e)),
                 ephemeral=True
             )
 
-    @app_commands.command(name="giveaway_delete", description="Supprime un giveaway actif")
+    @app_commands.command(name="giveaway_delete", description=t("giveaway.commands.delete_description", "Supprime un giveaway actif"))
     @app_commands.describe(
         message_id="L'ID du message du giveaway à supprimer"
     )
@@ -410,14 +411,14 @@ class GiveawayCog(commands.Cog):
             
             if not giveaway_data:
                 await interaction.response.send_message(
-                    "❌ Aucun giveaway trouvé avec cet ID de message.",
+                    t("giveaway.delete.not_found_by_message_id", "❌ Aucun giveaway trouvé avec cet ID de message."),
                     ephemeral=True
                 )
                 return
             
             if giveaway_data["server_id"] != str(interaction.guild.id):
                 await interaction.response.send_message(
-                    "❌ Ce giveaway n'appartient pas à ce serveur.",
+                    t("giveaway.delete.wrong_server", "❌ Ce giveaway n'appartient pas à ce serveur."),
                     ephemeral=True
                 )
                 return
@@ -434,7 +435,7 @@ class GiveawayCog(commands.Cog):
             
             if success:
                 await interaction.response.send_message(
-                    f"✅ Giveaway **{giveaway_data['giveaway_title']}** supprimé avec succès.",
+                    t("giveaway.delete.success", "✅ Giveaway **{title}** supprimé avec succès.", title=giveaway_data['giveaway_title']),
                     ephemeral=True
                 )
                 
@@ -455,18 +456,18 @@ class GiveawayCog(commands.Cog):
                 logging.info(f"Giveaway {giveaway_data['giveaway_id']} supprimé par {interaction.user}")
             else:
                 await interaction.response.send_message(
-                    "❌ Erreur lors de la suppression du giveaway.",
+                    t("giveaway.delete.failure", "❌ Erreur lors de la suppression du giveaway."),
                     ephemeral=True
                 )
                 
         except Exception as e:
             logging.error(f"Erreur lors de la suppression : {str(e)}")
             await interaction.response.send_message(
-                f"❌ Erreur : {str(e)}",
+                t("giveaway.delete.generic_error", "❌ Erreur : {error}", error=str(e)),
                 ephemeral=True
             )
 
-    @app_commands.command(name="giveaway_reroll", description="Retirer un nouveau gagnant pour un giveaway terminé")
+    @app_commands.command(name="giveaway_reroll", description=t("giveaway.commands.reroll_description", "Retirer un nouveau gagnant pour un giveaway terminé"))
     @app_commands.describe(
         message_id="L'ID du message du giveaway",
         nombre_gagnants="Nombre de nouveaux gagnants à tirer (optionnel, défaut: 1)"
@@ -483,21 +484,21 @@ class GiveawayCog(commands.Cog):
             
             if not giveaway_data:
                 await interaction.response.send_message(
-                    "❌ Aucun giveaway trouvé avec cet ID de message.",
+                    t("giveaway.reroll.not_found_by_message_id", "❌ Aucun giveaway trouvé avec cet ID de message."),
                     ephemeral=True
                 )
                 return
             
             if giveaway_data["server_id"] != str(interaction.guild.id):
                 await interaction.response.send_message(
-                    "❌ Ce giveaway n'appartient pas à ce serveur.",
+                    t("giveaway.reroll.wrong_server", "❌ Ce giveaway n'appartient pas à ce serveur."),
                     ephemeral=True
                 )
                 return
             
             if not giveaway_data["giveaway_is_finished"]:
                 await interaction.response.send_message(
-                    "❌ Ce giveaway n'est pas encore terminé. Attendez la fin pour reroll.",
+                    t("giveaway.reroll.not_finished", "❌ Ce giveaway n'est pas encore terminé. Attendez la fin pour reroll."),
                     ephemeral=True
                 )
                 return
@@ -506,14 +507,14 @@ class GiveawayCog(commands.Cog):
             
             if len(participants) < nombre_gagnants:
                 await interaction.response.send_message(
-                    f"❌ Pas assez de participants pour tirer {nombre_gagnants} gagnant(s). Il y a seulement {len(participants)} participant(s).",
+                    t("giveaway.reroll.not_enough_participants", "❌ Pas assez de participants pour tirer {winner_count} gagnant(s). Il y a seulement {participant_count} participant(s).", winner_count=nombre_gagnants, participant_count=len(participants)),
                     ephemeral=True
                 )
                 return
             
             if nombre_gagnants <= 0:
                 await interaction.response.send_message(
-                    "❌ Le nombre de gagnants doit être positif.",
+                    t("giveaway.reroll.winner_count_must_be_positive", "❌ Le nombre de gagnants doit être positif."),
                     ephemeral=True
                 )
                 return
@@ -522,18 +523,18 @@ class GiveawayCog(commands.Cog):
             nouveaux_gagnants = random.sample(participants, nombre_gagnants)
             
             embed = discord.Embed(
-                title=f"🔄 {giveaway_data['giveaway_title']} - Reroll",
+                title=t("giveaway.reroll.embed_title", "🔄 {title} - Reroll", title=giveaway_data['giveaway_title']),
                 color=discord.Color.purple()
             )
             
             gagnants_mentions = ", ".join([f"<@{gagnant_id}>" for gagnant_id in nouveaux_gagnants])
             embed.add_field(
-                name=f"🏆 {'Nouveau gagnant' if nombre_gagnants == 1 else 'Nouveaux gagnants'}",
+                name=t("giveaway.reroll.new_winner_label", "🏆 Nouveau gagnant") if nombre_gagnants == 1 else t("giveaway.reroll.new_winners_label", "🏆 Nouveaux gagnants"),
                 value=gagnants_mentions,
                 inline=False
             )
             
-            embed.set_footer(text=f"Reroll effectué par {interaction.user.name}")
+            embed.set_footer(text=t("giveaway.reroll.footer", "Reroll effectué par {user}", user=interaction.user.name))
             
             channel = self.bot.get_channel(int(giveaway_data["giveaway_channel_id"]))
             if channel:
@@ -543,8 +544,8 @@ class GiveawayCog(commands.Cog):
                 try:
                     user = await self.bot.fetch_user(gagnant_id)
                     dm_embed = discord.Embed(
-                        title="🎉 Vous avez gagné (Reroll) !",
-                        description=f"Félicitations ! Vous avez été sélectionné lors du reroll du giveaway **{giveaway_data['giveaway_title']}**",
+                        title=t("giveaway.reroll.dm_title", "🎉 Vous avez gagné (Reroll) !"),
+                        description=t("giveaway.reroll.dm_description", "Félicitations ! Vous avez été sélectionné lors du reroll du giveaway **{title}**", title=giveaway_data['giveaway_title']),
                         color=discord.Color.purple()
                     )
                     dm_embed.add_field(
@@ -557,7 +558,7 @@ class GiveawayCog(commands.Cog):
                     logging.warning(f"Impossible d'envoyer un MP au gagnant {gagnant_id} : {str(e)}")
             
             await interaction.followup.send(
-                f"✅ Reroll effectué ! {nombre_gagnants} {'nouveau gagnant tiré' if nombre_gagnants == 1 else 'nouveaux gagnants tirés'}.",
+                t("giveaway.reroll.success_one", "✅ Reroll effectué ! {winner_count} nouveau gagnant tiré.", winner_count=nombre_gagnants) if nombre_gagnants == 1 else t("giveaway.reroll.success_many", "✅ Reroll effectué ! {winner_count} nouveaux gagnants tirés.", winner_count=nombre_gagnants),
                 ephemeral=True
             )
             
@@ -581,12 +582,12 @@ class GiveawayCog(commands.Cog):
             logging.error(f"Erreur reroll : {str(e)}")
             if interaction.response.is_done():
                 await interaction.followup.send(
-                    f"❌ Erreur : {str(e)}",
+                    t("giveaway.reroll.generic_error", "❌ Erreur : {error}", error=str(e)),
                     ephemeral=True
                 )
             else:
                 await interaction.response.send_message(
-                    f"❌ Erreur : {str(e)}",
+                    t("giveaway.reroll.generic_error", "❌ Erreur : {error}", error=str(e)),
                     ephemeral=True
                 )
 
@@ -597,21 +598,21 @@ class GiveawayView(discord.ui.View):
         self.cog = cog
         self.giveaway_id = giveaway_id
 
-    @discord.ui.button(label="Participer 🎉", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label=t("giveaway.participation.button_label", "Participer 🎉"), style=discord.ButtonStyle.primary)
     async def participate(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             if not giveaway_data:
                 await interaction.response.send_message(
-                    "❌ Ce giveaway n'existe plus.",
+                    t("giveaway.participation.no_longer_exists", "❌ Ce giveaway n'existe plus."),
                     ephemeral=True
                 )
                 return
             
             if giveaway_data["giveaway_is_finished"]:
                 await interaction.response.send_message(
-                    "❌ Ce giveaway est terminé.",
+                    t("giveaway.participation.already_finished", "❌ Ce giveaway est terminé."),
                     ephemeral=True
                 )
                 return
@@ -621,7 +622,7 @@ class GiveawayView(discord.ui.View):
             if user_id in giveaway_data["giveaway_participants"]:
                 view = UnsubscribeView(self.giveaway_id)
                 await interaction.response.send_message(
-                    "⚠️ Vous participez déjà à ce giveaway !\nVoulez-vous vous désinscrire ?",
+                    t("giveaway.participation.already_participating", "⚠️ Vous participez déjà à ce giveaway !\nVoulez-vous vous désinscrire ?"),
                     view=view,
                     ephemeral=True
                 )
@@ -631,7 +632,7 @@ class GiveawayView(discord.ui.View):
             
             if not success:
                 await interaction.response.send_message(
-                    "❌ Erreur lors de l'ajout de votre participation.",
+                    t("giveaway.participation.add_participation_error", "❌ Erreur lors de l'ajout de votre participation."),
                     ephemeral=True
                 )
                 return
@@ -639,7 +640,7 @@ class GiveawayView(discord.ui.View):
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             await interaction.response.send_message(
-                f"✅ Vous participez au giveaway ! ({len(giveaway_data['giveaway_participants'])} participant(s))",
+                t("giveaway.participation.joined_success", "✅ Vous participez au giveaway ! ({participant_count} participant(s))", participant_count=len(giveaway_data['giveaway_participants'])),
                 ephemeral=True
             )
             
@@ -648,7 +649,7 @@ class GiveawayView(discord.ui.View):
         except Exception as e:
             logging.error(f"Erreur lors de la participation : {str(e)}")
             await interaction.response.send_message(
-                f"❌ Erreur : {str(e)}",
+                t("giveaway.reroll.generic_error", "❌ Erreur : {error}", error=str(e)),
                 ephemeral=True
             )
 
@@ -658,21 +659,21 @@ class UnsubscribeView(discord.ui.View):
         super().__init__(timeout=60)
         self.giveaway_id = giveaway_id
 
-    @discord.ui.button(label="Se désinscrire", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label=t("giveaway.unsubscribe.button_label", "Se désinscrire"), style=discord.ButtonStyle.danger)
     async def unsubscribe(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             if not giveaway_data:
                 await interaction.response.edit_message(
-                    content="❌ Ce giveaway n'existe plus.",
+                    content=t("giveaway.participation.no_longer_exists", "❌ Ce giveaway n'existe plus."),
                     view=None
                 )
                 return
             
             if giveaway_data["giveaway_is_finished"]:
                 await interaction.response.edit_message(
-                    content="❌ Ce giveaway est terminé.",
+                    content=t("giveaway.participation.already_finished", "❌ Ce giveaway est terminé."),
                     view=None
                 )
                 return
@@ -683,7 +684,7 @@ class UnsubscribeView(discord.ui.View):
             
             if not success:
                 await interaction.response.edit_message(
-                    content="❌ Erreur : Vous ne participez pas à ce giveaway ou une erreur s'est produite.",
+                    content=t("giveaway.unsubscribe.not_participating_or_error", "❌ Erreur : Vous ne participez pas à ce giveaway ou une erreur s'est produite."),
                     view=None
                 )
                 return
@@ -691,7 +692,7 @@ class UnsubscribeView(discord.ui.View):
             giveaway_data = db.get_giveaway(self.giveaway_id)
             
             await interaction.response.edit_message(
-                content=f"✅ Vous ne participez plus au giveaway. ({len(giveaway_data['giveaway_participants'])} participant(s))",
+                content=t("giveaway.unsubscribe.left_success", "✅ Vous ne participez plus au giveaway. ({participant_count} participant(s))", participant_count=len(giveaway_data['giveaway_participants'])),
                 view=None
             )
             
@@ -700,14 +701,14 @@ class UnsubscribeView(discord.ui.View):
         except Exception as e:
             logging.error(f"Erreur lors de la désinscription : {str(e)}")
             await interaction.response.edit_message(
-                content=f"❌ Erreur : {str(e)}",
+                content=t("giveaway.unsubscribe.generic_error", "❌ Erreur : {error}", error=str(e)),
                 view=None
             )
 
-    @discord.ui.button(label="Annuler", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label=t("giveaway.unsubscribe.cancel_button_label", "Annuler"), style=discord.ButtonStyle.secondary)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.edit_message(
-            content="❌ Désinscription annulée. Vous participez toujours au giveaway.",
+            content=t("giveaway.unsubscribe.cancelled", "❌ Désinscription annulée. Vous participez toujours au giveaway."),
             view=None
         )
 

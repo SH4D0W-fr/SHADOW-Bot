@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from config import Config
 from modules.Image import render_card
+from modules.I18n import t
 
 
 class JoinLeaveCog(commands.Cog):
@@ -15,15 +16,21 @@ class JoinLeaveCog(commands.Cog):
         file = discord.File(fp=image, filename=filename)
 
         description = (
-            Config.WelcomeMessage.format(member=member.mention)
+            t("config.welcome_message", Config.WelcomeMessage, member=member.mention)
             if join
-            else Config.GoodbyeMessage.format(member=member.mention)
+            else t("config.goodbye_message", Config.GoodbyeMessage, member=member.mention)
         )
 
         color = discord.Color.green() if join else discord.Color.red()
         embed = discord.Embed(title=title, description=description, color=color)
         embed.set_image(url=f"attachment://{filename}")
-        embed.set_footer(text=f"Total membres : {member.guild.member_count}")
+        embed.set_footer(
+            text=t(
+                "join_leave.total_members_footer",
+                "Total membres : {member_count}",
+                member_count=member.guild.member_count,
+            )
+        )
         return file, embed
 
     async def send_card(self, member: discord.Member, channel_id: int, title: str, join: bool):
@@ -41,11 +48,21 @@ class JoinLeaveCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        await self.send_card(member, Config.WelcomeChannelID, "Bienvenue", join=True)
+        await self.send_card(
+            member,
+            Config.WelcomeChannelID,
+            t("join_leave.welcome_title", "Bienvenue"),
+            join=True,
+        )
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        await self.send_card(member, Config.GoodbyeChannelID, "À bientôt", join=False)
+        await self.send_card(
+            member,
+            Config.GoodbyeChannelID,
+            t("join_leave.goodbye_title", "À bientôt"),
+            join=False,
+        )
 
 
 async def setup(bot: commands.Bot) -> None:

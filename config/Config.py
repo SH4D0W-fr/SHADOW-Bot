@@ -1,6 +1,8 @@
 ServerID = 1460609497344250085
 ServerName = "SHADOW Dev"
 
+Language = "fr"  # "en" for English, "fr" for French
+
 
 WelcomeChannelID = 1460637521695211662
 WelcomeMessage = "Bienvenue sur le serveur, {member}!"
