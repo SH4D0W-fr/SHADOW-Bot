@@ -1,0 +1,433 @@
+{
+  "app": {
+    "presence_playing": "Present on {servercount} servers"
+  },
+  "config": {
+    "welcome_message": "Welcome to the server, {member}!",
+    "goodbye_message": "Goodbye, {member}! We will miss you."
+  },
+  "join_leave": {
+    "welcome_title": "Welcome",
+    "goodbye_title": "See you soon",
+    "total_members_footer": "Total members: {member_count}"
+  },
+  "giveaway": {
+    "commands": {
+      "create_description": "Create a new giveaway",
+      "participants_description": "Show giveaway participants",
+      "delete_description": "Delete an active giveaway",
+      "reroll_description": "Pick a new winner for a finished giveaway"
+    },
+    "create": {
+      "invalid_date_time_format": "❌ Invalid date or time format. Use DD/MM/YYYY for date and HH:MM for time.",
+      "end_date_must_be_future": "❌ End date must be in the future.",
+      "date_time_parse_error": "❌ Date/time format error: {error}",
+      "winner_count_must_be_positive": "❌ Winner count must be positive.",
+      "database_save_error": "❌ Error while saving giveaway to database.",
+      "success": "✅ Giveaway created! It will end on {date} at {heure} (in {heures}h {minutes}m).",
+      "generic_error": "❌ Error while creating giveaway: {error}"
+    },
+    "embed": {
+      "price_field": "🎁 Prizes",
+      "conditions_field": "📋 Conditions",
+      "winners_field": "👥 Winners",
+      "remaining_time_field": "⏱️ Time left",
+      "participants_field": "📊 Participants",
+      "end_field": "📅 End",
+      "ended": "Finished",
+      "ended_footer": "Giveaway ended",
+      "join_footer": "Click the button to join"
+    },
+    "end": {
+      "cancelled_title": "❌ {title} - Cancelled",
+      "not_enough_participants": "Not enough participants to choose winners.",
+      "ended_title": "🎉 {title} - Ended",
+      "winners_field": "🏆 Winners",
+      "total_participants_field": "👥 Total participants",
+      "end_date_field": "📅 End date",
+      "announcement_title": "🎉 Giveaway ended!",
+      "announcement_description": "The giveaway **{title}** has ended!",
+      "dm_win_title": "🎉 You won!",
+      "dm_win_description": "Congratulations! You won the **{title}** giveaway"
+    },
+    "participants": {
+      "no_active": "❌ No active giveaway in this channel.",
+      "none_yet": "ℹ️ No participants yet.",
+      "title": "📊 Giveaway participants",
+      "total_field": "Total",
+      "generic_error": "❌ Error: {error}"
+    },
+    "delete": {
+      "not_found_by_message_id": "❌ No giveaway found with this message ID.",
+      "wrong_server": "❌ This giveaway does not belong to this server.",
+      "success": "✅ Giveaway **{title}** deleted successfully.",
+      "failure": "❌ Error while deleting giveaway.",
+      "generic_error": "❌ Error: {error}"
+    },
+    "reroll": {
+      "not_found_by_message_id": "❌ No giveaway found with this message ID.",
+      "wrong_server": "❌ This giveaway does not belong to this server.",
+      "not_finished": "❌ This giveaway is not finished yet. Wait until it ends to reroll.",
+      "not_enough_participants": "❌ Not enough participants to draw {winner_count} winner(s). Only {participant_count} participant(s).",
+      "winner_count_must_be_positive": "❌ Winner count must be positive.",
+      "embed_title": "🔄 {title} - Reroll",
+      "new_winner_label": "🏆 New winner",
+      "new_winners_label": "🏆 New winners",
+      "footer": "Reroll done by {user}",
+      "dm_title": "🎉 You won (Reroll)!",
+      "dm_description": "Congratulations! You were selected in the reroll of **{title}**",
+      "success_one": "✅ Reroll done! {winner_count} new winner drawn.",
+      "success_many": "✅ Reroll done! {winner_count} new winners drawn.",
+      "generic_error": "❌ Error: {error}"
+    },
+    "participation": {
+      "button_label": "Join 🎉",
+      "no_longer_exists": "❌ This giveaway no longer exists.",
+      "already_finished": "❌ This giveaway is finished.",
+      "already_participating": "⚠️ You are already participating in this giveaway!\nDo you want to unsubscribe?",
+      "add_participation_error": "❌ Error while adding your participation.",
+      "joined_success": "✅ You joined the giveaway! ({participant_count} participant(s))"
+    },
+    "unsubscribe": {
+      "button_label": "Unsubscribe",
+      "cancel_button_label": "Cancel",
+      "not_participating_or_error": "❌ Error: You are not participating in this giveaway or an error occurred.",
+      "left_success": "✅ You are no longer participating in the giveaway. ({participant_count} participant(s))",
+      "cancelled": "❌ Unsubscribe cancelled. You are still participating in the giveaway.",
+      "generic_error": "❌ Error: {error}"
+    },
+    "logs": {
+      "created_title": "🎉 Giveaway created",
+      "created_description": "A new giveaway has been created",
+      "title_field": "📝 Title",
+      "price_field": "🎁 Prizes",
+      "conditions_field": "📋 Conditions",
+      "winners_field": "👥 Winners",
+      "end_date_field": "📅 End date",
+      "channel_field": "📍 Channel",
+      "created_footer": "Created by {user} | ID: {giveaway_id}",
+      "ended_title": "🏆 Giveaway ended",
+      "ended_description": "The giveaway **{title}** has ended",
+      "participants_field": "👥 Participants",
+      "ended_footer": "ID: {giveaway_id}",
+      "deleted_title": "🗑️ Giveaway deleted",
+      "deleted_description": "A giveaway has been deleted",
+      "deleted_footer": "Deleted by {user} | ID: {giveaway_id}",
+      "reroll_title": "🔄 Giveaway Reroll",
+      "reroll_description": "A reroll was made for **{title}**",
+      "new_winners_field": "🏆 New winners",
+      "winner_count_field": "👥 Winners count",
+      "reroll_footer": "Reroll by {user} | ID: {giveaway_id}"
+    }
+  },
+  "moderation": {
+    "commands": {
+      "kick_description": "Kick a user from the server",
+      "ban_description": "Ban a user from the server",
+      "unban_description": "Unban a user from the server",
+      "mute_description": "Apply a timeout to a user",
+      "unmute_description": "Remove a user's timeout",
+      "purge_description": "Delete a number of messages"
+    },
+    "common": {
+      "reason_field": "Reason",
+      "user_id_field": "User ID",
+      "moderator_id_footer": "Moderator ID: {moderator_id}",
+      "generic_error": "❌ Error: {error}"
+    },
+    "kick": {
+      "cannot_kick_higher_user": "❌ You cannot kick this user (role too high).",
+      "cannot_kick_higher_bot": "❌ I cannot kick this user (role too high).",
+      "dm_title": "You have been kicked",
+      "dm_description": "You were kicked from {guild}",
+      "success_title": "Member kicked",
+      "success_description": "{member} was kicked from the server.",
+      "success_footer": "Kicked by {moderator}",
+      "log_title": "🚪 User kicked (KICK)",
+      "log_description": "**User:** {member}\n**Moderator:** {moderator}"
+    },
+    "ban": {
+      "cannot_ban_higher_user": "❌ You cannot ban this user (role too high).",
+      "cannot_ban_higher_bot": "❌ I cannot ban this user (role too high).",
+      "dm_title": "You have been banned",
+      "dm_description": "You were banned from {guild}",
+      "success_title": "Member banned",
+      "success_description": "{member} was banned from the server.",
+      "success_footer": "Banned by {moderator}",
+      "log_title": "🔨 User banned (BAN)",
+      "log_description": "**User:** {member}\n**Moderator:** {moderator}"
+    },
+    "unban": {
+      "success_title": "User unbanned",
+      "success_description": "{user} ({username}) was unbanned from the server.",
+      "success_footer": "Unbanned by {moderator}",
+      "log_title": "🔓 User unbanned (UNBAN)",
+      "log_description": "**User:** {user}\n**Moderator:** {moderator}"
+    },
+    "mute": {
+      "max_duration": "❌ Maximum timeout duration is 40320 minutes (28 days).",
+      "cannot_timeout_higher": "❌ I cannot timeout this user (role too high).",
+      "success_title": "Timeout applied",
+      "success_description": "{member} received a timeout.",
+      "duration_field": "Duration",
+      "duration_value": "{duration} minutes",
+      "success_footer": "Timeout by {moderator}",
+      "log_title": "🔇 Timeout applied (MUTE)",
+      "log_description": "**User:** {member}\n**Moderator:** {moderator}",
+      "missing_permissions": "❌ I don't have the required permissions to timeout this member."
+    },
+    "unmute": {
+      "success_title": "Timeout removed",
+      "success_description": "{member} can speak again.",
+      "success_footer": "Timeout removed by {moderator}",
+      "log_title": "🔊 Timeout removed (UNMUTE)",
+      "log_description": "**User:** {member}\n**Moderator:** {moderator}"
+    },
+    "purge": {
+      "max_100": "❌ You cannot delete more than 100 messages.",
+      "success_title": "Messages deleted",
+      "success_description": "{count} message(s) deleted.",
+      "user_field": "User",
+      "success_footer": "Purged by {moderator}",
+      "missing_permissions": "❌ I don't have the required permissions."
+    },
+    "logs": {
+      "member_ban": "🔨 User banned",
+      "member_unban": "🔓 User unbanned"
+    }
+  },
+  "tickets": {
+    "ui": {
+      "select_placeholder": "Choose a ticket type",
+      "button_claim": "Claim",
+      "button_close": "Close",
+      "button_rename": "Rename",
+      "button_transcript": "Transcript",
+      "button_add_member": "Add member",
+      "button_remove_member": "Remove member",
+      "button_delete": "Delete",
+      "modal_rename_title": "Rename ticket",
+      "modal_rename_field": "New name",
+      "modal_rename_placeholder": "new-ticket-name",
+      "modal_add_member_title": "Add a member",
+      "modal_remove_member_title": "Remove a member",
+      "modal_member_field": "Member mention or ID",
+      "modal_member_placeholder": "@user or user_id"
+    },
+    "commands": {
+      "panel_description": "Send the ticket opening panel",
+      "close_description": "Close the ticket",
+      "add_description": "Add a member to the ticket",
+      "remove_description": "Remove a member from the ticket",
+      "rename_description": "Rename the ticket"
+    },
+    "panel": {
+      "channel_not_found": "❌ TicketChannel not found",
+      "embed_title": "🎫 Tickets",
+      "embed_description": "Choose the type of ticket you want to open using the menu below. Please provide as many details as possible so our team can help you efficiently.",
+      "embed_footer": "Click the menu below to choose your ticket category.",
+      "sent": "✅ Panel sent",
+      "generic_error": "❌ Error: {error}"
+    },
+    "create": {
+      "invalid_type": "❌ Invalid ticket type",
+      "category_not_found": "❌ Ticket category not found",
+      "embed_title": "🎫 Ticket: {type}",
+      "embed_description": "Thanks for opening a ticket. Staff will answer soon.",
+      "type_field": "Type",
+      "author_field": "Author",
+      "created_at_field": "Created at",
+      "instructions_field": "Instructions",
+      "instructions_value": "• Please describe your issue in detail and provide as much relevant information as possible\n• Please wait for staff to respond; they will get back to you as soon as possible",
+      "footer": "Ticket ID: {ticket_id}",
+      "success": "✅ Ticket created: {channel}",
+      "missing_permissions": "❌ Insufficient permissions",
+      "generic_error": "❌ Error: {error}"
+    },
+    "claim": {
+      "not_ticket_channel": "❌ This is not a ticket channel",
+      "no_permission": "❌ You do not have permission",
+      "already_claimed": "❌ This ticket is already claimed by {claimer}",
+      "embed_title": "✋ Ticket Claimed",
+      "embed_description": "{staff} is now handling this ticket.",
+      "success": "✅ Ticket claimed successfully",
+      "generic_error": "❌ Error: {error}"
+    },
+    "rename": {
+      "not_ticket_channel": "❌ This is not a ticket channel",
+      "no_permission": "❌ You do not have permission",
+      "name_length": "❌ Name must be between 2 and 100 characters",
+      "success": "✅ Ticket renamed to `{name}`",
+      "channel_not_found": "❌ Channel not found",
+      "missing_permissions": "❌ Insufficient permissions",
+      "generic_error": "❌ Error: {error}"
+    },
+    "delete": {
+      "not_found_or_not_closed": "❌ Ticket not found or not closed",
+      "must_be_closed": "❌ Ticket must be closed before deletion",
+      "no_permission": "❌ You do not have permission",
+      "missing_permissions": "❌ Insufficient permissions",
+      "generic_error": "❌ Error: {error}"
+    },
+    "close": {
+      "default_reason": "No reason provided",
+      "not_ticket_channel": "❌ This is not a ticket channel",
+      "no_permission": "❌ You do not have permission",
+      "embed_title": "🔒 Ticket Closed",
+      "reason_prefix": "Reason: {reason}",
+      "closed_by_field": "Closed by",
+      "closed_at_field": "Closed at",
+      "information_field": "Information",
+      "information_value": "This ticket is now read-only. Use the button below to delete it permanently.",
+      "success": "✅ Ticket closed",
+      "generic_error": "❌ Error: {error}"
+    },
+    "members": {
+      "channel_not_found": "❌ Channel not found",
+      "not_ticket_channel": "❌ This is not a ticket channel",
+      "no_permission": "❌ You do not have permission",
+      "member_not_found": "❌ Member not found",
+      "cannot_remove_owner": "❌ Cannot remove the ticket owner",
+      "add_success": "✅ {member} added to the ticket",
+      "remove_success": "✅ {member} removed from the ticket",
+      "missing_permissions": "❌ Insufficient permissions",
+      "generic_error": "❌ Error: {error}"
+    },
+    "transcript": {
+      "channel_not_found": "❌ Channel not found",
+      "generic_error": "❌ Error: {error}"
+    },
+    "autoclose": {
+      "reason": "Inactivity ({hours}h without response)",
+      "embed_title": "🔒 Ticket Closed Automatically",
+      "embed_description": "This ticket was closed due to inactivity ({hours}h without response).",
+      "why_field": "Why?",
+      "why_value": "No answer from the ticket creator after staff replied.",
+      "information_field": "Information",
+      "information_value": "This ticket is now read-only. Use the button below to delete it permanently."
+    },
+    "logs": {
+      "create_title": "🎫 Ticket Created",
+      "create_description": "**Channel:** {channel}\n**Author:** {author}",
+      "type_field": "Type",
+      "channel_id_field": "Channel ID",
+      "user_id_field": "User ID",
+      "ticket_id_footer": "Ticket ID: {ticket_id}",
+      "claim_title": "✋ Ticket Claimed",
+      "claim_description": "**Channel:** {channel}\n**Claimed by:** {staff}",
+      "staff_id_field": "Staff ID",
+      "rename_title": "✏️ Ticket Renamed",
+      "rename_description": "**Channel:** {channel}\n**Renamed by:** {staff}",
+      "old_name_field": "Old name",
+      "new_name_field": "New name",
+      "delete_title": "🗑️ Ticket Deleted",
+      "delete_description": "**Deleted by:** {staff}",
+      "close_title": "🔒 Ticket Closed",
+      "close_description": "**Channel:** {channel}\n**Closed by:** {staff}",
+      "reason_field": "Reason",
+      "member_add_title": "➕ Member Added to Ticket",
+      "member_add_description": "**Channel:** {channel}\n**Added member:** {member}\n**Added by:** {staff}",
+      "member_id_field": "Member ID",
+      "member_remove_title": "➖ Member Removed from Ticket",
+      "member_remove_description": "**Channel:** {channel}\n**Removed member:** {member}\n**Removed by:** {staff}",
+      "autoclose_title": "⏰ Ticket Closed Automatically",
+      "autoclose_description": "**Channel:** {channel}"
+    }
+  },
+  "logs": {
+    "message": {
+      "deleted_title": "📛 Message deleted",
+      "deleted_description": "**Author:** {author}\n**Channel:** {channel}",
+      "content_field": "Content",
+      "none_content": "*(no content)*",
+      "message_id_field": "Message ID",
+      "edited_title": "✏️ Message edited",
+      "before_field": "Before",
+      "after_field": "After",
+      "bulk_deleted_title": "🗑️ Bulk message deletion",
+      "bulk_deleted_description": "**Channel:** {channel}",
+      "unknown_channel": "Unknown",
+      "message_count_field": "Message count"
+    },
+    "voice": {
+      "join_title": "🎤 User joined voice",
+      "join_description": "**User:** {user}\n**Channel:** {channel}",
+      "leave_title": "🎤 User left voice",
+      "leave_description": "**User:** {user}\n**Channel:** {channel}",
+      "move_title": "🎤 User moved",
+      "move_description": "**User:** {user}",
+      "from_field": "From",
+      "to_field": "To",
+      "mute_title": "🔇 User muted",
+      "unmute_title": "🔊 User unmuted",
+      "deafen_title": "🔇 User deafened",
+      "undeafen_title": "🔊 User undeafened",
+      "na_channel": "N/A"
+    },
+    "channel": {
+      "create_title": "➕ Channel created",
+      "create_description": "**Channel:** {channel}",
+      "delete_title": "➖ Channel deleted",
+      "delete_description": "**Channel:** {channel_name}",
+      "update_title": "✏️ Channel updated",
+      "update_description": "**Channel:** {channel}",
+      "change_field": "Change",
+      "name_change": "**Name:** {before} → {after}",
+      "topic_change": "**Topic:** {before} → {after}",
+      "none_topic": "none",
+      "nsfw_change": "**NSFW:** {before} → {after}",
+      "type_field": "Type",
+      "id_field": "ID",
+      "channel_id_footer": "Channel ID: {channel_id}"
+    },
+    "role": {
+      "create_title": "➕ Role created",
+      "create_description": "**Role:** {role}",
+      "delete_title": "➖ Role deleted",
+      "delete_description": "**Role:** {role_name}",
+      "update_title": "✏️ Role updated",
+      "update_description": "**Role:** {role}",
+      "color_field": "Color",
+      "id_field": "ID",
+      "change_field": "Change",
+      "name_change": "**Name:** {before} → {after}",
+      "color_change": "**Color:** {before} → {after}",
+      "permissions_change": "**Permissions:** Updated",
+      "mentionable_change": "**Mentionable:** {before} → {after}",
+      "role_id_footer": "Role ID: {role_id}"
+    },
+    "member": {
+      "nickname_title": "📝 Nickname changed",
+      "nickname_description": "**User:** {user}",
+      "before_field": "Before",
+      "after_field": "After",
+      "none_value": "None",
+      "roles_title": "👥 Roles changed",
+      "roles_description_header": "**User:** {user}",
+      "added_roles": "**Added roles:** {roles}",
+      "removed_roles": "**Removed roles:** {roles}",
+      "user_id_footer": "User ID: {user_id}"
+    },
+    "moderation": {
+      "ban_title": "🔨 User banned",
+      "ban_description": "**User:** {user}",
+      "unban_title": "🔓 User unbanned",
+      "unban_description": "**User:** {user}",
+      "name_field": "Name",
+      "id_field": "ID",
+      "user_id_footer": "User ID: {user_id}"
+    },
+    "invite": {
+      "create_title": "🔗 Invite created",
+      "create_description": "**Channel:** {channel}",
+      "delete_title": "🔗 Invite deleted",
+      "delete_description": "**Channel:** {channel}",
+      "unknown": "Unknown",
+      "code_field": "Code",
+      "creator_field": "Creator",
+      "uses_field": "Uses",
+      "infinite": "∞",
+      "code_footer": "Code: {code}"
+    }
+  }
+}
