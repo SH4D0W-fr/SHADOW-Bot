@@ -3,6 +3,10 @@ ServerName = "SHADOW Dev"
 
 Language = "fr"  # "en" for English, "fr" for French
 
+StatusType = "online"  # "online", "idle", "dnd", "invisible"
+StatusActivityType = "playing"  # "playing", "streaming", "listening", "watching"
+StatusActivityText = "SHADOW Bot en développement"  # Placeholder disponible: {servercount}
+
 
 WelcomeChannelID = 1460637521695211662
 WelcomeMessage = "Bienvenue sur le serveur, {member}!"
