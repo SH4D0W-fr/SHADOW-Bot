@@ -97,6 +97,10 @@ class ClosedTicketView(discord.ui.View):
         self.cog = cog
         self.ticket_channel_id = ticket_channel_id
 
+    @discord.ui.button(label=t("tickets.ui.button_reopen", "Réouvrir"), style=discord.ButtonStyle.green, emoji="🔓")
+    async def reopen_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.reopen_ticket_command(interaction, self.ticket_channel_id)
+
     @discord.ui.button(label=t("tickets.ui.button_delete", "Supprimer"), style=discord.ButtonStyle.danger, emoji="🗑️")
     async def delete_ticket(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cog.delete_ticket_command(interaction, self.ticket_channel_id)
@@ -518,6 +522,10 @@ class TicketsCog(commands.Cog):
             self.logger.error(f"Erreur suppression ticket: {e}")
             await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
+    @app_commands.command(name="ticket_reopen", description=t("tickets.commands.reopen_description", "Réouvre un ticket fermé"))
+    async def ticket_reopen(self, interaction: discord.Interaction):
+        await self.reopen_ticket_command(interaction, interaction.channel.id)
+
     @app_commands.command(name="ticket_close", description=t("tickets.commands.close_description", "Ferme le ticket"))
     @app_commands.describe(reason="Raison de la fermeture")
     async def ticket_close(self, interaction: discord.Interaction, reason: str = "Aucune raison fournie"):
@@ -552,7 +560,7 @@ class TicketsCog(commands.Cog):
             embed.add_field(name="Fermé à", value=f"<t:{int(datetime.now().timestamp())}:F>", inline=False)
             embed.add_field(
                 name="Information",
-                value="Ce ticket est maintenant en lecture seule. Utilisez le bouton ci-dessous pour le supprimer définitivement.",
+                value="Ce ticket est maintenant en lecture seule. Utilisez les boutons ci-dessous pour le réouvrir ou le supprimer définitivement.",
                 inline=False
             )
 
@@ -808,7 +816,7 @@ class TicketsCog(commands.Cog):
                 )
                 embed.add_field(
                     name="Information",
-                    value="Ce ticket est maintenant en lecture seule. Utilisez le bouton ci-dessous pour le supprimer définitivement.",
+                    value="Ce ticket est maintenant en lecture seule. Utilisez les boutons ci-dessous pour le réouvrir ou le supprimer définitivement.",
                     inline=False
                 )
 
@@ -843,6 +851,69 @@ class TicketsCog(commands.Cog):
             pass
         except Exception as e:
             self.logger.error(f"Erreur tâche auto-close: {e}")
+
+    async def reopen_ticket_command(self, interaction: discord.Interaction, channel_id: int):
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            from modules.Database import db
+            from modules.TicketManager import TicketData
+
+            ticket = self.ticket_manager.tickets.get(channel_id)
+            if not ticket:
+                ticket_data_db = db.get_ticket_by_channel(str(channel_id))
+                if not ticket_data_db:
+                    await interaction.followup.send("❌ Ticket non trouvé", ephemeral=True)
+                    return
+                ticket = TicketData.from_db(ticket_data_db)
+
+            if not ticket.is_closed:
+                await interaction.followup.send("❌ Ce ticket n'est pas fermé", ephemeral=True)
+                return
+
+            if not self.can_manage_ticket(interaction, ticket):
+                await interaction.followup.send("❌ Vous n'avez pas la permission", ephemeral=True)
+                return
+
+            self.ticket_manager.reopen_ticket(channel_id)
+
+            channel = self.bot.get_channel(channel_id)
+            if channel:
+                overwrites = channel.overwrites
+                for target, overwrite in overwrites.items():
+                    if target != channel.guild.default_role:
+                        overwrite.send_messages = True
+                        await channel.set_permissions(target, overwrite=overwrite)
+
+                if channel.name.startswith("fermé-"):
+                    await channel.edit(name=channel.name[len("fermé-"):])
+
+                embed = discord.Embed(
+                    title="🔓 Ticket Réouvert",
+                    description=f"Ce ticket a été réouvert par {interaction.user.mention}.",
+                    color=discord.Color.green()
+                )
+                embed.add_field(name="Réouvert par", value=interaction.user.mention, inline=True)
+                embed.add_field(name="Réouvert à", value=f"<t:{int(datetime.now().timestamp())}:F>", inline=False)
+                await channel.send(embed=embed, view=TicketActionView(self, channel_id))
+
+            await interaction.followup.send("✅ Ticket réouvert", ephemeral=True)
+            self.logger.info(f"Ticket {channel_id} réouvert par {interaction.user}")
+
+            log_embed = discord.Embed(
+                title="🔓 Ticket Réouvert",
+                description=f"**Canal:** {channel.mention if channel else 'Inconnu'}\n**Réouvert par:** {interaction.user.mention}",
+                color=discord.Color.green(),
+                timestamp=datetime.now()
+            )
+            log_embed.add_field(name="ID Canal", value=channel_id, inline=True)
+            log_embed.add_field(name="ID Utilisateur", value=interaction.user.id, inline=True)
+            log_embed.set_footer(text=f"Ticket ID: {channel_id}")
+            await self.send_ticket_log("ticket_reopen", log_embed)
+
+        except Exception as e:
+            self.logger.error(f"Erreur réouverture ticket: {e}")
+            await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)
 
     def can_manage_ticket(self, interaction: discord.Interaction, ticket) -> bool:
         if interaction.user.guild_permissions.manage_channels:

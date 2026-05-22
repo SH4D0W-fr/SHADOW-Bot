@@ -359,6 +359,21 @@ class Database:
             logging.error(f"Erreur fermeture ticket : {str(e)}")
             return False
     
+    def reopen_ticket(self, channel_id: str) -> bool:
+        try:
+            self.ensure_connection()
+            cursor = self.connection.cursor()
+            query = """UPDATE tickets SET is_closed = FALSE, closed_at = NULL,
+                       closed_by_id = NULL, close_reason = NULL WHERE channel_id = %s"""
+            cursor.execute(query, (channel_id,))
+            self.connection.commit()
+            cursor.close()
+            logging.info(f"Ticket {channel_id} réouvert")
+            return True
+        except mysql.connector.Error as e:
+            logging.error(f"Erreur réouverture ticket : {str(e)}")
+            return False
+
     def delete_ticket(self, channel_id: str) -> bool:
         try:
             self.ensure_connection()

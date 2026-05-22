@@ -139,6 +139,25 @@ class TicketManager:
         except Exception as e:
             self.logger.error(f"Erreur fermeture ticket: {e}")
 
+    def reopen_ticket(self, channel_id: int) -> Optional["TicketData"]:
+        try:
+            db.reopen_ticket(str(channel_id))
+
+            if channel_id in self.tickets:
+                self.tickets[channel_id].is_closed = False
+                return self.tickets[channel_id]
+
+            ticket_data = db.get_ticket_by_channel(str(channel_id))
+            if ticket_data:
+                ticket = TicketData.from_db(ticket_data)
+                self.tickets[channel_id] = ticket
+                return ticket
+
+            return None
+        except Exception as e:
+            self.logger.error(f"Erreur réouverture ticket: {e}")
+            return None
+
     def is_ticket_channel(self, channel_id: int) -> bool:
         return self.get_ticket(channel_id) is not None
 

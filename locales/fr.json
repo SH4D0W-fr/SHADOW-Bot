@@ -205,6 +205,7 @@
       "button_transcript": "Transcrire",
       "button_add_member": "Ajouter membre",
       "button_remove_member": "Retirer membre",
+      "button_reopen": "Réouvrir",
       "button_delete": "Supprimer",
       "modal_rename_title": "Renommer le ticket",
       "modal_rename_field": "Nouveau nom",
@@ -216,6 +217,7 @@
     },
     "commands": {
       "panel_description": "Envoie le panel d'ouverture de tickets",
+      "reopen_description": "Réouvre un ticket fermé",
       "close_description": "Ferme le ticket",
       "add_description": "Ajoute un membre au ticket",
       "remove_description": "Retire un membre du ticket",
@@ -278,7 +280,7 @@
       "closed_by_field": "Fermé par",
       "closed_at_field": "Fermé à",
       "information_field": "Information",
-      "information_value": "Ce ticket est maintenant en lecture seule. Utilisez le bouton ci-dessous pour le supprimer définitivement.",
+      "information_value": "Ce ticket est maintenant en lecture seule. Utilisez les boutons ci-dessous pour le réouvrir ou le supprimer définitivement.",
       "success": "✅ Ticket fermé",
       "generic_error": "❌ Erreur: {error}"
     },
@@ -304,7 +306,18 @@
       "why_field": "Pourquoi?",
       "why_value": "Aucune réponse du créateur du ticket après que le staff ait répondu.",
       "information_field": "Information",
-      "information_value": "Ce ticket est maintenant en lecture seule. Utilisez le bouton ci-dessous pour le supprimer définitivement."
+      "information_value": "Ce ticket est maintenant en lecture seule. Utilisez les boutons ci-dessous pour le réouvrir ou le supprimer définitivement."
+    },
+    "reopen": {
+      "not_found": "❌ Ticket non trouvé",
+      "not_closed": "❌ Ce ticket n'est pas fermé",
+      "no_permission": "❌ Vous n'avez pas la permission",
+      "embed_title": "🔓 Ticket Réouvert",
+      "embed_description": "Ce ticket a été réouvert par {staff}.",
+      "reopened_by_field": "Réouvert par",
+      "reopened_at_field": "Réouvert à",
+      "success": "✅ Ticket réouvert",
+      "generic_error": "❌ Erreur: {error}"
     },
     "logs": {
       "create_title": "🎫 Ticket Créé",
@@ -331,7 +344,9 @@
       "member_remove_title": "➖ Membre Retiré du Ticket",
       "member_remove_description": "**Canal:** {channel}\n**Membre retiré:** {member}\n**Retiré par:** {staff}",
       "autoclose_title": "⏰ Ticket Fermé Automatiquement",
-      "autoclose_description": "**Canal:** {channel}"
+      "autoclose_description": "**Canal:** {channel}",
+      "reopen_title": "🔓 Ticket Réouvert",
+      "reopen_description": "**Canal:** {channel}\n**Réouvert par:** {staff}"
     }
   },
   "logs": {

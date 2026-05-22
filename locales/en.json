@@ -205,6 +205,7 @@
       "button_transcript": "Transcript",
       "button_add_member": "Add member",
       "button_remove_member": "Remove member",
+      "button_reopen": "Reopen",
       "button_delete": "Delete",
       "modal_rename_title": "Rename ticket",
       "modal_rename_field": "New name",
@@ -216,6 +217,7 @@
     },
     "commands": {
       "panel_description": "Send the ticket opening panel",
+      "reopen_description": "Reopen a closed ticket",
       "close_description": "Close the ticket",
       "add_description": "Add a member to the ticket",
       "remove_description": "Remove a member from the ticket",
@@ -278,7 +280,7 @@
       "closed_by_field": "Closed by",
       "closed_at_field": "Closed at",
       "information_field": "Information",
-      "information_value": "This ticket is now read-only. Use the button below to delete it permanently.",
+      "information_value": "This ticket is now read-only. Use the buttons below to reopen it or delete it permanently.",
       "success": "✅ Ticket closed",
       "generic_error": "❌ Error: {error}"
     },
@@ -304,7 +306,18 @@
       "why_field": "Why?",
       "why_value": "No answer from the ticket creator after staff replied.",
       "information_field": "Information",
-      "information_value": "This ticket is now read-only. Use the button below to delete it permanently."
+      "information_value": "This ticket is now read-only. Use the buttons below to reopen it or delete it permanently."
+    },
+    "reopen": {
+      "not_found": "❌ Ticket not found",
+      "not_closed": "❌ This ticket is not closed",
+      "no_permission": "❌ You do not have permission",
+      "embed_title": "🔓 Ticket Reopened",
+      "embed_description": "This ticket was reopened by {staff}.",
+      "reopened_by_field": "Reopened by",
+      "reopened_at_field": "Reopened at",
+      "success": "✅ Ticket reopened",
+      "generic_error": "❌ Error: {error}"
     },
     "logs": {
       "create_title": "🎫 Ticket Created",
@@ -331,7 +344,9 @@
       "member_remove_title": "➖ Member Removed from Ticket",
       "member_remove_description": "**Channel:** {channel}\n**Removed member:** {member}\n**Removed by:** {staff}",
       "autoclose_title": "⏰ Ticket Closed Automatically",
-      "autoclose_description": "**Channel:** {channel}"
+      "autoclose_description": "**Channel:** {channel}",
+      "reopen_title": "🔓 Ticket Reopened",
+      "reopen_description": "**Channel:** {channel}\n**Reopened by:** {staff}"
     }
   },
   "logs": {
