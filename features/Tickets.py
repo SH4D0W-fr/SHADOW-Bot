@@ -757,8 +757,8 @@ class TicketsCog(commands.Cog):
                     owner = message.guild.get_member(ticket.owner_id)
                     if owner:
                         try:
-                            # Anti-spam: ping cooldown simple (pas 2 pings du même staff dans la même seconde)
-                            await message.reply(f"{owner.mention}", allowed_mentions=discord.AllowedMentions(users=True))
+                            ping_message = await message.reply(f"{owner.mention}", allowed_mentions=discord.AllowedMentions(users=True))
+                            await ping_message.delete()
                             self.logger.info(f"Auto-ping: {message.author} a pingé {owner} dans ticket {message.channel.id}")
                         except Exception as e:
                             self.logger.error(f"Erreur auto-ping: {e}")
