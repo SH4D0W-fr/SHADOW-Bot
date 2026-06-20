@@ -10,6 +10,9 @@ class JoinLeaveCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    def _is_main_guild(self, guild: discord.Guild | None) -> bool:
+        return guild is not None and guild.id == Config.ServerID
+
     async def assign_join_roles(self, member: discord.Member):
         role_ids = getattr(Config, "JoinRoles", []) or []
         if not role_ids:
@@ -77,6 +80,8 @@ class JoinLeaveCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if not self._is_main_guild(member.guild):
+            return
         await self.assign_join_roles(member)
         await self.send_card(
             member,
@@ -87,6 +92,8 @@ class JoinLeaveCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
+        if not self._is_main_guild(member.guild):
+            return
         await self.send_card(
             member,
             Config.GoodbyeChannelID,

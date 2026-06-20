@@ -9,6 +9,9 @@ class LogCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    def _is_main_guild(self, guild: discord.Guild | None) -> bool:
+        return guild is not None and guild.id == Config.ServerID
+
     def get_log_channel(self, log_type: str) -> int | None:
         if Config.LogsEnabled:
             return Config.LogsChannel
@@ -28,6 +31,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
+        if not self._is_main_guild(message.guild):
+            return
+
         if message.author.bot:
             return
 
@@ -45,6 +51,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if not self._is_main_guild(after.guild):
+            return
+
         if after.author.bot:
             return
 
@@ -66,6 +75,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages: list[discord.Message]):
+        if not messages or not self._is_main_guild(messages[0].guild):
+            return
+
         embed = discord.Embed(
             title="🗑️ Messages supprimés en masse",
             description=f"**Canal:** {messages[0].channel.mention if messages else 'Inconnu'}",
@@ -80,6 +92,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        if not self._is_main_guild(member.guild):
+            return
+
         if member.bot:
             return
 
@@ -146,6 +161,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
+        if not self._is_main_guild(channel.guild):
+            return
+
         embed = discord.Embed(
             title="➕ Canal créé",
             description=f"**Canal:** {channel.mention}",
@@ -160,6 +178,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
+        if not self._is_main_guild(channel.guild):
+            return
+
         embed = discord.Embed(
             title="➖ Canal supprimé",
             description=f"**Canal:** {channel.name}",
@@ -174,8 +195,11 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
+        if not self._is_main_guild(after.guild):
+            return
+
         changes = []
-        
+
         if before.name != after.name:
             changes.append(f"**Nom:** {before.name} → {after.name}")
         
@@ -204,6 +228,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_create(self, role: discord.Role):
+        if not self._is_main_guild(role.guild):
+            return
+
         embed = discord.Embed(
             title="➕ Rôle créé",
             description=f"**Rôle:** {role.mention}",
@@ -218,6 +245,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
+        if not self._is_main_guild(role.guild):
+            return
+
         embed = discord.Embed(
             title="➖ Rôle supprimé",
             description=f"**Rôle:** {role.name}",
@@ -232,8 +262,11 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
+        if not self._is_main_guild(after.guild):
+            return
+
         changes = []
-        
+
         if before.name != after.name:
             changes.append(f"**Nom:** {before.name} → {after.name}")
         if before.color != after.color:
@@ -262,6 +295,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if not self._is_main_guild(after.guild):
+            return
+
         if before.nick != after.nick:
             embed = discord.Embed(
                 title="📝 Surnom modifié",
@@ -298,6 +334,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: discord.User):
+        if not self._is_main_guild(guild):
+            return
+
         embed = discord.Embed(
             title="🔨 Utilisateur banni",
             description=f"**Utilisateur:** {user.mention}",
@@ -312,6 +351,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: discord.User):
+        if not self._is_main_guild(guild):
+            return
+
         embed = discord.Embed(
             title="🔓 Utilisateur débanni",
             description=f"**Utilisateur:** {user.mention}",
@@ -328,6 +370,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite: discord.Invite):
+        if not self._is_main_guild(invite.guild):
+            return
+
         embed = discord.Embed(
             title="🔗 Invitation créée",
             description=f"**Canal:** {invite.channel.mention if invite.channel else 'Inconnu'}",
@@ -343,6 +388,9 @@ class LogCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: discord.Invite):
+        if not self._is_main_guild(invite.guild):
+            return
+
         embed = discord.Embed(
             title="🔗 Invitation supprimée",
             description=f"**Canal:** {invite.channel.mention if invite.channel else 'Inconnu'}",

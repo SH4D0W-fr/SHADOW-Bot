@@ -742,7 +742,7 @@ class TicketsCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.bot or not message.guild:
+        if message.author.bot or not message.guild or message.guild.id != Config.ServerID:
             return
 
         ticket = self.ticket_manager.get_ticket(message.channel.id)
