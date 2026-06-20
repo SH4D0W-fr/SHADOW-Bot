@@ -11,6 +11,42 @@
     "goodbye_title": "À bientôt",
     "total_members_footer": "Total membres : {member_count}"
   },
+  "patchnote": {
+    "commands": {
+      "description": "Crée et publie un patch note"
+    },
+    "color_prompt": "🎨 Choisissez la couleur de l'embed, puis remplissez le patch note :",
+    "color_placeholder": "Choisissez la couleur de l'embed",
+    "colors": {
+      "green": "Vert",
+      "red": "Rouge",
+      "blue": "Bleu",
+      "gold": "Or",
+      "orange": "Orange",
+      "purple": "Violet",
+      "blurple": "Blurple",
+      "dark": "Sombre"
+    },
+    "modal": {
+      "title": "Créer un patch note",
+      "title_field": "Titre",
+      "title_placeholder": "Mise à jour v1.0.0",
+      "additions_field": "Ajouts",
+      "fixes_field": "Corrections",
+      "removals_field": "Retraits",
+      "line_placeholder": "Un élément par ligne"
+    },
+    "embed": {
+      "default_title": "📝 Patch Note",
+      "additions_field": "✨ Ajouts",
+      "fixes_field": "🛠️ Corrections",
+      "removals_field": "🗑️ Retraits",
+      "footer": "Publié par {user}"
+    },
+    "empty": "❌ Vous devez renseigner au moins une section (ajouts, corrections ou retraits).",
+    "success": "✅ Patch note publié !",
+    "generic_error": "❌ Erreur : {error}"
+  },
   "giveaway": {
     "commands": {
       "create_description": "Crée un nouveau giveaway",

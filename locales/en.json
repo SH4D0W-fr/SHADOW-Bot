@@ -11,6 +11,42 @@
     "goodbye_title": "See you soon",
     "total_members_footer": "Total members: {member_count}"
   },
+  "patchnote": {
+    "commands": {
+      "description": "Create and publish a patch note"
+    },
+    "color_prompt": "🎨 Choose the embed color, then fill in the patch note:",
+    "color_placeholder": "Choose the embed color",
+    "colors": {
+      "green": "Green",
+      "red": "Red",
+      "blue": "Blue",
+      "gold": "Gold",
+      "orange": "Orange",
+      "purple": "Purple",
+      "blurple": "Blurple",
+      "dark": "Dark"
+    },
+    "modal": {
+      "title": "Create a patch note",
+      "title_field": "Title",
+      "title_placeholder": "Update v1.0.0",
+      "additions_field": "Additions",
+      "fixes_field": "Fixes",
+      "removals_field": "Removals",
+      "line_placeholder": "One item per line"
+    },
+    "embed": {
+      "default_title": "📝 Patch Note",
+      "additions_field": "✨ Additions",
+      "fixes_field": "🛠️ Fixes",
+      "removals_field": "🗑️ Removals",
+      "footer": "Published by {user}"
+    },
+    "empty": "❌ You must fill at least one section (additions, fixes or removals).",
+    "success": "✅ Patch note published!",
+    "generic_error": "❌ Error: {error}"
+  },
   "giveaway": {
     "commands": {
       "create_description": "Create a new giveaway",
